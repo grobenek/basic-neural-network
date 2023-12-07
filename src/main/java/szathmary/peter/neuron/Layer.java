@@ -15,6 +15,18 @@ public class Layer implements INeuronComponent {
     this.neuronList = new LinkedList<>();
   }
 
+  public Neuron getNeuron(int index) {
+    if (index < 0 || index >= neuronList.size()) {
+      throw new IndexOutOfBoundsException(String.format("Index %d is out of bounds for %d neurons!", index, neuronList.size()));
+    }
+
+    return neuronList.get(index);
+  }
+
+  public int getNeuronCount() {
+    return neuronList.size();
+  }
+
   @Override
   public void processInput(double[] input) {
     if (neuronList.isEmpty()) {

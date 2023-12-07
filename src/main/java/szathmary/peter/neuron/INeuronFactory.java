@@ -1,7 +1,8 @@
 package szathmary.peter.neuron;
 
 public interface INeuronFactory {
-  Neuron createNeuron();
+  Neuron createNeuron(int neuronInputSize, String activationFunctionName);
 
-  Neuron createInputLayerNeuron();
+  Neuron createInputLayerNeuron(
+      int neuronInputSize, int numberOfNeuronsInLayer, String activationFunctionName);
 }

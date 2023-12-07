@@ -25,6 +25,22 @@ public class Network implements INeuronComponent {
     layers.add(layer);
   }
 
+  public Layer getLayer(int index) {
+    if (index < 0 || index >= layers.size()) {
+      throw new IndexOutOfBoundsException(String.format("Index %d is out of bounds for %d layers!", index, layers.size()));
+    }
+
+    return layers.get(index);
+  }
+
+  public int getNumberOfLayers() {
+    return 2 + layers.size(); // input, output layer + hidden layers
+  }
+
+  public int getNumberOfHiddenLayers() {
+    return layers.size(); // input, output layer + hidden layers
+  }
+
   @Override
   public void processInput(double[] input) {
     if (inputLayer == null) {
@@ -54,5 +70,13 @@ public class Network implements INeuronComponent {
 
   public double[] getOutput() {
     return output;
+  }
+
+  public Layer getInputLayer() {
+    return inputLayer;
+  }
+
+  public Layer getOutputLayer() {
+    return outputLayer;
   }
 }

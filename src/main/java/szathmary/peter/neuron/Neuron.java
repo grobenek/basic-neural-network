@@ -11,10 +11,13 @@ public class Neuron implements INeuronComponent {
   private double weightedInput;
   private double output;
 
+  private double[] input;
+
   public Neuron(IActivationFunction activationFunction, double[] weights) {
     this.activationFunction = activationFunction;
     this.weights = weights;
   }
+
   public Neuron(int inputSize, IActivationFunction activationFunction) {
     this.activationFunction = activationFunction;
     this.weights = initializeWeights(inputSize);
@@ -24,10 +27,28 @@ public class Neuron implements INeuronComponent {
     if (input.length != weights.length) {
       throw new IllegalArgumentException("Input and weights must be of the same length");
     }
+    this.input = input;
 
     this.weightedInput =
         IntStream.range(0, input.length).mapToDouble(i -> input[i] * weights[i]).sum();
     this.output = applyActivationFunction();
+  }
+
+  public double[] getWeights() {
+    return weights;
+  }
+
+  public void setWeight(double weight, int index) {
+    if (index < 0 || index >= weights.length) {
+      throw new IndexOutOfBoundsException(
+          String.format("Index %d is out of bounds for %d weights!", index, weights.length));
+    }
+
+    weights[index] = weight;
+  }
+
+  public IActivationFunction getActivationFunction() {
+    return activationFunction;
   }
 
   private double applyActivationFunction() {
@@ -36,6 +57,14 @@ public class Neuron implements INeuronComponent {
 
   public double getOutput() {
     return output;
+  }
+
+  public double getWeightedInput() {
+    return weightedInput;
+  }
+
+  public double[] getInputs() {
+    return input;
   }
 
   private double[] initializeWeights(int size) {
