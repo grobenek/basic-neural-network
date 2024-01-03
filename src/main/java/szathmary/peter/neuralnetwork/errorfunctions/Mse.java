@@ -1,4 +1,4 @@
-package szathmary.peter.errorfunctions;
+package szathmary.peter.neuralnetwork.errorfunctions;
 
 public class Mse implements IErrorFunction {
     @Override

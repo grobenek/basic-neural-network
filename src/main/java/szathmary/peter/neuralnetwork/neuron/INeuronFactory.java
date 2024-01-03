@@ -1,4 +1,4 @@
-package szathmary.peter.neuron;
+package szathmary.peter.neuralnetwork.neuron;
 
 public interface INeuronFactory {
   Neuron createNeuron(int neuronInputSize, String activationFunctionName);

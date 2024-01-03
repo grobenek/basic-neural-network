@@ -1,4 +1,4 @@
-package szathmary.peter.neuron;
+package szathmary.peter.neuralnetwork.neuron;
 
 public class NetworkBuilder {
   private static final INeuronFactory neuronFactory = new NeuronFactory();
@@ -29,7 +29,7 @@ public class NetworkBuilder {
 
       neuronInputSize = inputLayer.getNeuronCount();
     } else {
-      neuronInputSize = network.getLayer(network.getNumberOfLayers() - 1).getNeuronCount();
+      neuronInputSize = network.getHiddenLayer(network.getNumberOfLayers() - 1).getNeuronCount();
     }
 
     Layer layer = createLayer(numberOfNeuronsInLayer, neuronInputSize, activationFunctionName);
@@ -61,7 +61,7 @@ public class NetworkBuilder {
       throw new IllegalStateException("Output layer already defined!");
     }
 
-    int neuronInputSize = network.getLayer(network.getNumberOfHiddenLayers() - 1).getNeuronCount();
+    int neuronInputSize = network.getHiddenLayer(network.getNumberOfHiddenLayers() - 1).getNeuronCount();
 
     Layer layer = createLayer(numberOfNeuronsInLayer, neuronInputSize, activationFunctionName);
 

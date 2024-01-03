@@ -1,9 +1,11 @@
-package szathmary.peter.neuron;
+package szathmary.peter.neuralnetwork.neuron;
 
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
-import szathmary.peter.activationfunctions.IActivationFunction;
+
+import szathmary.peter.Main;
+import szathmary.peter.neuralnetwork.activationfunctions.IActivationFunction;
 
 public class Neuron implements INeuronComponent {
   private final double[] weights;
@@ -68,7 +70,8 @@ public class Neuron implements INeuronComponent {
   }
 
   private double[] initializeWeights(int size) {
-    Random random = new Random();
-    return Arrays.stream(new double[size]).map(weight -> random.nextDouble()).toArray();
+    Random random = Main.random;
+    double scale = Math.sqrt(1.0 / size);
+    return Arrays.stream(new double[size]).map(weight -> scale * (2.0 * random.nextDouble() - 1.0)).toArray();
   }
 }

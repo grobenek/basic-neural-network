@@ -1,6 +1,6 @@
-package szathmary.peter.neuron;
+package szathmary.peter.neuralnetwork.neuron;
 
-import szathmary.peter.activationfunctions.IActivationFunction;
+import szathmary.peter.neuralnetwork.activationfunctions.IActivationFunction;
 
 public interface IActivationFunctionFactory {
   IActivationFunction getActivationFunction(String activationFunctionName);

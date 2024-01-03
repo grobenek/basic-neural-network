@@ -1,4 +1,4 @@
-package szathmary.peter.activationfunctions;
+package szathmary.peter.neuralnetwork.activationfunctions;
 
 public class ReluActivationFunction implements IActivationFunction {
     @Override

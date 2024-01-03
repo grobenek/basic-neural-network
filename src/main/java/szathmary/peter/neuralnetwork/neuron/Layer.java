@@ -1,4 +1,4 @@
-package szathmary.peter.neuron;
+package szathmary.peter.neuralnetwork.neuron;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -47,5 +47,9 @@ public class Layer implements INeuronComponent {
 
   public double[] getOutputs() {
     return outputs;
+  }
+
+  public List<Neuron> getNeuronList() {
+    return neuronList;
   }
 }

@@ -1,4 +1,4 @@
-package szathmary.peter.activationfunctions;
+package szathmary.peter.neuralnetwork.activationfunctions;
 
 public class SigmoidActivationFunction implements IActivationFunction {
   @Override
@@ -8,6 +8,8 @@ public class SigmoidActivationFunction implements IActivationFunction {
 
   @Override
   public double applyForDerivation(double input) {
-    return apply(input) * (1 - apply(input));
+    double sigmoid = apply(input);
+    return sigmoid * (1 - sigmoid);
   }
 }
+

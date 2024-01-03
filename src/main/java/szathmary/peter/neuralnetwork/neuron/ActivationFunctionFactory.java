@@ -1,7 +1,7 @@
-package szathmary.peter.neuron;
+package szathmary.peter.neuralnetwork.neuron;
 
 import java.util.HashMap;
-import szathmary.peter.activationfunctions.*;
+import szathmary.peter.neuralnetwork.activationfunctions.*;
 
 public class ActivationFunctionFactory implements IActivationFunctionFactory {
   private static final HashMap<String, IActivationFunction> activationFunctions;
