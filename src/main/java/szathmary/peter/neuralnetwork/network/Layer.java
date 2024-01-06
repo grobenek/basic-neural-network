@@ -1,4 +1,4 @@
-package szathmary.peter.neuralnetwork.neuron;
+package szathmary.peter.neuralnetwork.network;
 
 import java.util.LinkedList;
 import java.util.List;

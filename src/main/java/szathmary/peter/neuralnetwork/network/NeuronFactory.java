@@ -1,4 +1,4 @@
-package szathmary.peter.neuralnetwork.neuron;
+package szathmary.peter.neuralnetwork.network;
 
 import java.util.Arrays;
 
@@ -7,7 +7,7 @@ public class NeuronFactory implements INeuronFactory {
       new ActivationFunctionFactory();
 
   @Override
-  public Neuron createNeuron(int neuronInputSize, String activationFunctionName) {
+  public Neuron createNeuron(int neuronInputSize, ActivationFunction activationFunctionName) {
     if (neuronInputSize == 0) {
       throw new IllegalArgumentException("Cannot create neuron with zero input size!");
     }
@@ -18,7 +18,7 @@ public class NeuronFactory implements INeuronFactory {
 
   @Override
   public Neuron createInputLayerNeuron(
-      int neuronInputSize, int numberOfNeuronsInLayer, String activationFunctionName) {
+          int neuronInputSize, int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
     double[] weights = new double[neuronInputSize];
 
     Arrays.fill(weights, 1);

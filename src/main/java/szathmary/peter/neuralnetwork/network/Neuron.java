@@ -1,4 +1,4 @@
-package szathmary.peter.neuralnetwork.neuron;
+package szathmary.peter.neuralnetwork.network;
 
 import java.util.Arrays;
 import java.util.Random;

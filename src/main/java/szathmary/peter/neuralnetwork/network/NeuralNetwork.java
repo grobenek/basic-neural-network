@@ -1,15 +1,15 @@
-package szathmary.peter.neuralnetwork.neuron;
+package szathmary.peter.neuralnetwork.network;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Network implements INeuronComponent {
-  private final List<Layer> hiddenLayers; // hidden layers
+public class NeuralNetwork implements INeuronComponent {
+  private final List<Layer> hiddenLayers;
   private Layer inputLayer;
   private Layer outputLayer;
   private double[] output;
 
-  public Network() {
+  public NeuralNetwork() {
     this.hiddenLayers = new ArrayList<>();
   }
 

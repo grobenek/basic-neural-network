@@ -1,11 +1,11 @@
-package szathmary.peter.neuralnetwork.neuron;
+package szathmary.peter.neuralnetwork.network;
 
-public class NetworkBuilder {
+public class NeuralNetworkBuilder {
   private static final INeuronFactory neuronFactory = new NeuronFactory();
-  private final Network network = new Network();
+  private final NeuralNetwork neuralNetwork = new NeuralNetwork();
 
   private Layer createLayer(
-      int numberOfNeuronsInLayer, int neuronInputSize, String activationFunctionName) {
+          int numberOfNeuronsInLayer, int neuronInputSize, ActivationFunction activationFunctionName) {
     if (numberOfNeuronsInLayer == 0) {
       throw new IllegalArgumentException("Cannot create layer with zero neurons!");
     }
@@ -17,11 +17,11 @@ public class NetworkBuilder {
     return layer;
   }
 
-  public NetworkBuilder addLayer(int numberOfNeuronsInLayer, String activationFunctionName) {
+  public NeuralNetworkBuilder addLayer(int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
 
     int neuronInputSize;
-    if (network.getNumberOfHiddenLayers() == 0) {
-      Layer inputLayer = network.getInputLayer();
+    if (neuralNetwork.getNumberOfHiddenLayers() == 0) {
+      Layer inputLayer = neuralNetwork.getInputLayer();
 
       if (inputLayer == null) {
         throw new IllegalStateException("Input layer must be defined first!");
@@ -29,18 +29,18 @@ public class NetworkBuilder {
 
       neuronInputSize = inputLayer.getNeuronCount();
     } else {
-      neuronInputSize = network.getHiddenLayer(network.getNumberOfLayers() - 1).getNeuronCount();
+      neuronInputSize = neuralNetwork.getHiddenLayer(neuralNetwork.getNumberOfLayers() - 1).getNeuronCount();
     }
 
     Layer layer = createLayer(numberOfNeuronsInLayer, neuronInputSize, activationFunctionName);
 
-    network.addLayer(layer);
+    neuralNetwork.addLayer(layer);
 
     return this;
   }
 
-  public NetworkBuilder addInputLayer(int numberOfNeuronsInLayer, String activationFunctionName) {
-    if (network.getInputLayer() != null) {
+  public NeuralNetworkBuilder addInputLayer(int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
+    if (neuralNetwork.getInputLayer() != null) {
       throw new IllegalStateException("Input layer already defined!");
     }
 
@@ -51,30 +51,30 @@ public class NetworkBuilder {
           neuronFactory.createInputLayerNeuron(numberOfNeuronsInLayer, 1, activationFunctionName));
     }
 
-    network.setInputLayer(inputLayer);
+    neuralNetwork.setInputLayer(inputLayer);
 
     return this;
   }
 
-  public NetworkBuilder addOutputLayer(int numberOfNeuronsInLayer, String activationFunctionName) {
-    if (network.getOutputLayer() != null) {
+  public NeuralNetworkBuilder addOutputLayer(int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
+    if (neuralNetwork.getOutputLayer() != null) {
       throw new IllegalStateException("Output layer already defined!");
     }
 
-    int neuronInputSize = network.getHiddenLayer(network.getNumberOfHiddenLayers() - 1).getNeuronCount();
+    int neuronInputSize = neuralNetwork.getHiddenLayer(neuralNetwork.getNumberOfHiddenLayers() - 1).getNeuronCount();
 
     Layer layer = createLayer(numberOfNeuronsInLayer, neuronInputSize, activationFunctionName);
 
-    network.setOutputLayer(layer);
+    neuralNetwork.setOutputLayer(layer);
 
     return this;
   }
 
-  public Network build() {
-    if (network.getOutputLayer() == null) {
+  public NeuralNetwork build() {
+    if (neuralNetwork.getOutputLayer() == null) {
       throw new IllegalStateException("No output layer defined!");
     }
 
-    return network;
+    return neuralNetwork;
   }
 }

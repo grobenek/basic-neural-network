@@ -1,102 +1,100 @@
 package szathmary.peter.neuralnetwork.trainingalgorithms;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import szathmary.peter.mvc.observable.IObserver;
+import szathmary.peter.mvc.observable.ITraningAlgorithmObservable;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
-import szathmary.peter.neuralnetwork.neuron.Network;
+import szathmary.peter.neuralnetwork.network.NeuralNetwork;
 
-public abstract class TrainingAlgorithm {
+public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   protected final double learningRate;
-  public double errorTreshold;
+  private final List<IObserver> observerList = new ArrayList<>();
   private double lastError;
+  private List<Double> errorList = Collections.emptyList();
 
   public TrainingAlgorithm(double learningRate) {
     this.learningRate = learningRate;
   }
 
-  //  public final void train(
-  //      Network network,
-  //      IErrorFunction errorFunction,
-  //      double[] inputs,
-  //      double[] expectedOutputs,
-  //      int numberOfEpochs,
-  //      double minErrorTreshold) {
-  //    if (inputs.length != expectedOutputs.length) {
-  //      throw new IllegalArgumentException(
-  //          String.format(
-  //              "Input length %d does not match expectedOutputs length %d!",
-  //              inputs.length, expectedOutputs.length));
-  //    }
-  //
-  //    this.errorTreshold = minErrorTreshold;
-  //
-  //    for (int i = 0; i < numberOfEpochs; i++) {
-  //      for (int currentDataInTrainIndex = 0;
-  //          currentDataInTrainIndex < inputs.length;
-  //          currentDataInTrainIndex++) {
-  //        double[] input = {inputs[currentDataInTrainIndex]};
-  //        double[] expectedOutput = {expectedOutputs[currentDataInTrainIndex]};
-  //        trainOnSelectedData(network, input, expectedOutput, errorFunction);
-  ////        System.out.println("error " + lastError);
-  //      }
-  //      System.out.println("Epoch " + i + " : error " + lastError);
-  //
-  //      if (lastError <= errorTreshold) {
-  //        return;
-  //      }
-  //    }
-  //  }
-
   public final void train(
-    Network network,
-    IErrorFunction errorFunction,
-    double[] inputs, // assuming inputs is an array of single numbers
-    double[] expectedOutputs, // assuming expectedOutputs is an array of single numbers
-    int numberOfEpochs,
-    double minErrorTreshold) {
+      NeuralNetwork neuralNetwork,
+      IErrorFunction errorFunction,
+      double[][] inputs, // assuming inputs is an array of single numbers
+      double[][] expectedOutputs, // assuming expectedOutputs is an array of single numbers
+      int numberOfEpochs,
+      double minErrorTreshold) {
 
-  if (inputs.length != expectedOutputs.length) {
-    throw new IllegalArgumentException(
-        String.format(
-            "Input length %d does not match expectedOutputs length %d!",
-            inputs.length, expectedOutputs.length));
-  }
-
-  this.errorTreshold = minErrorTreshold;
-
-  for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
-    double totalError = 0;
-
-    for (int i = 0; i < inputs.length; i++) {
-      double[] input = new double[]{inputs[i]}; // Wrap single input number in an array
-      double[] expectedOutput = new double[]{expectedOutputs[i]}; // Wrap single output number in an array
-
-      trainOnSelectedData(network, input, expectedOutput, errorFunction);
-
-      totalError += this.lastError;
+    if (inputs.length != expectedOutputs.length) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Input length %d does not match expectedOutputs length %d!",
+              inputs.length, expectedOutputs.length));
     }
 
-    double averageError = totalError / inputs.length;
-    System.out.println("Epoch " + epoch + " : Average error = " + averageError);
+    errorList = new ArrayList<>(numberOfEpochs);
 
-    if (averageError <= errorTreshold) {
-      break; // Stop training if error is below threshold
+    for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
+      double totalError = 0;
+
+      for (int i = 0; i < inputs.length; i++) {
+        double[] input = inputs[i];
+        double[] expectedOutput = expectedOutputs[i];
+
+        trainOnSelectedData(neuralNetwork, input, expectedOutput, errorFunction);
+
+        totalError += this.lastError;
+      }
+
+      double averageError = totalError / inputs.length;
+      errorList.add(averageError);
+      System.out.println("Epoch " + epoch + " : Average error = " + averageError);
+
+      if (averageError <= minErrorTreshold) {
+        break; // Stop training if error is below threshold
+      }
     }
   }
-}
 
-private void trainOnSelectedData(
-    Network network, double[] input, double[] expectedOutput, IErrorFunction errorFunction) {
-  forwardPropagate(network, input);
+  private void trainOnSelectedData(
+      NeuralNetwork neuralNetwork,
+      double[] input,
+      double[] expectedOutput,
+      IErrorFunction errorFunction) {
+    forwardPropagate(neuralNetwork, input);
 
-  double error = calculateError(network, expectedOutput, errorFunction);
-  this.lastError = error;
-  backPropagate(network, error);
-}
+    double error = calculateError(neuralNetwork, expectedOutput, errorFunction);
+    this.lastError = error;
+    backPropagate(neuralNetwork, error);
+  }
 
-
-  protected abstract void forwardPropagate(Network network, double[] input);
+  protected abstract void forwardPropagate(NeuralNetwork neuralNetwork, double[] input);
 
   protected abstract double calculateError(
-      Network network, double[] expectedOutput, IErrorFunction errorFunction);
+      NeuralNetwork neuralNetwork, double[] expectedOutput, IErrorFunction errorFunction);
 
-  protected abstract void backPropagate(Network network, double error);
+  protected abstract void backPropagate(NeuralNetwork neuralNetwork, double error);
+
+  @Override
+  public void attach(IObserver observer) {
+    observerList.add(observer);
+  }
+
+  @Override
+  public void detach(IObserver observer) {
+    observerList.remove(observer);
+  }
+
+  @Override
+  public void sendNotifications() {
+    for (IObserver observer : observerList) {
+      observer.update(this);
+    }
+  }
+
+  @Override
+  public List<Double> getErrors() {
+    return errorList;
+  }
 }
