@@ -12,7 +12,7 @@ import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
-public class Controller implements IController, IObserver, INeuralNetworkObservable {
+public class Controller implements IController {
   private final IModel model;
   private final List<IObserver> observerList = new ArrayList<>();
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
@@ -20,6 +20,7 @@ public class Controller implements IController, IObserver, INeuralNetworkObserva
 
   public Controller(IModel model) {
     this.model = model;
+    this.model.attach(this);
   }
 
   @Override

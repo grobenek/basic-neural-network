@@ -1,8 +1,10 @@
 package szathmary.peter.mvc.model;
 
+import szathmary.peter.mvc.observable.INeuralNetworkObservable;
+import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 
-public interface IModel {
+public interface IModel extends IObserver, INeuralNetworkObservable {
   void initializeNetwork(NetworkConfiguration configuration);
 
   void trainNetwork(

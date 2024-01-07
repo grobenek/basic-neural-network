@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import szathmary.peter.mvc.observable.INeuralNetworkObservable;
 import szathmary.peter.mvc.observable.IObservable;
 import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.mvc.observable.ITraningAlgorithmObservable;
@@ -13,7 +12,7 @@ import szathmary.peter.neuralnetwork.network.NeuralNetwork;
 import szathmary.peter.neuralnetwork.network.NeuralNetworkBuilder;
 import szathmary.peter.neuralnetwork.trainingalgorithms.TrainingAlgorithm;
 
-public class NeuralNetworkModel implements IModel, IObserver, INeuralNetworkObservable {
+public class NeuralNetworkModel implements IModel {
   private final TrainingAlgorithm trainingAlgorithm;
   private final List<IObserver> observerList = new ArrayList<>();
   private NeuralNetwork neuralNetwork;
@@ -59,6 +58,8 @@ public class NeuralNetworkModel implements IModel, IObserver, INeuralNetworkObse
       double minErrorTreshold) {
     trainingAlgorithm.train(
         neuralNetwork, errorFunction, inputs, expectedOutputs, numberOfEpochs, minErrorTreshold);
+    trainingErrorList = trainingAlgorithm.getErrors();
+    sendNotifications();
   }
 
   @Override

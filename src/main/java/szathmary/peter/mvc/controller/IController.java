@@ -1,9 +1,11 @@
 package szathmary.peter.mvc.controller;
 
+import szathmary.peter.mvc.observable.INeuralNetworkObservable;
+import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
-public interface IController {
+public interface IController extends IObserver, INeuralNetworkObservable {
   void initializeNetwork(
       int numberOfInputNeurons,
       ActivationFunction inputLayerActivationFunction,
