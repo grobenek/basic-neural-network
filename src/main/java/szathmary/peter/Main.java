@@ -20,7 +20,7 @@ public class Main {
   public static Random random = new Random(1);
 
   public static void main(String[] args) {
-    TrainingAlgorithm trainingAlgorithm = new BackPropagation(0.1);
+    TrainingAlgorithm trainingAlgorithm = new BackPropagation(0.0001);
 
     IModel model = new NeuralNetworkModel(trainingAlgorithm);
 //

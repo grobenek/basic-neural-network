@@ -1,6 +1,7 @@
 package szathmary.peter.mvc.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.*;
@@ -21,6 +22,7 @@ import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class MainWindow extends JFrame implements IMainWindow {
   private final IController controller;
+  private final IModel model;
   private DefaultCategoryDataset dataset;
   private JFreeChart lineChart;
   private JPanel mainPanel;
@@ -42,6 +44,7 @@ public class MainWindow extends JFrame implements IMainWindow {
   public MainWindow(IController controller, IModel model) {
     this.controller = controller;
     this.controller.attach(this);
+    this.model = model;
 
     this.trainingErrors = new ArrayList<>();
 
@@ -66,10 +69,10 @@ public class MainWindow extends JFrame implements IMainWindow {
                           1,
                           ActivationFunction.IDENTITY,
                           1,
-                          new int[] {5},
-                          new ActivationFunction[] {ActivationFunction.SIGMOID},
+                          new int[] {2},
+                          new ActivationFunction[] {ActivationFunction.TANH},
                           1,
-                          ActivationFunction.TANH));
+                          ActivationFunction.IDENTITY));
 
                   CsvReader csvReader = new CsvReader("sin_data.csv");
                   double[][] data = csvReader.readCsv();
@@ -82,10 +85,10 @@ public class MainWindow extends JFrame implements IMainWindow {
 
                   for (int i = 0; i < data[0].length; i++) {
                     inputs[i][0] = data[0][i];
-                    outputs[i][0] = data[0][i];
+                    outputs[i][0] = data[1][i];
                   }
 
-                  model.trainNetwork(errorFunction, inputs, outputs, 5, 0.1);
+                  model.trainNetwork(errorFunction, inputs, outputs, 100, Double.MIN_VALUE);
                   return null;
                 }
               };
@@ -145,10 +148,13 @@ public class MainWindow extends JFrame implements IMainWindow {
     for (int i = 0; i < trainingErrors.size(); i++) {
       sb.append("Epoch ")
           .append(i)
-          .append(" :  Mse = ")
+          .append(" :  Average error = ")
           .append(trainingErrors.get(i))
           .append(System.lineSeparator());
     }
+
+    double predictionInput = 0.618;
+    sb.append("PREDICTION FOR NUMBER ").append(predictionInput).append(": ").append(Arrays.toString(model.predict(new double[]{predictionInput})));
 
     terminalTextPane.setText(sb.toString());
   }

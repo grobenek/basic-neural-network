@@ -52,7 +52,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       System.out.println("Epoch " + epoch + " : Average error = " + averageError);
 
       if (averageError <= minErrorTreshold) {
-        break; // Stop training if error is below threshold
+        break; // Stop training if error is below threshold //TODO zapamatat si najlepsie vahy a tie pouzit
       }
     }
   }
@@ -64,8 +64,9 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       IErrorFunction errorFunction) {
     forwardPropagate(neuralNetwork, input);
 
-    double error = calculateError(neuralNetwork, expectedOutput, errorFunction);
-    this.lastError = error;
+//    double error = calculateError(neuralNetwork, expectedOutput, errorFunction);
+    double error = expectedOutput[0] - neuralNetwork.getOutput()[0];
+    this.lastError = Math.pow(error, 2);
     backPropagate(neuralNetwork, error);
   }
 
