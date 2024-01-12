@@ -40,9 +40,10 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JTextArea terminalTextArea;
   private JButton predictButton;
   private JTextField textField1;
-  private JButton confirmNumberOfHiddenLayersButton;
   private JButton chooseTestingDataButton;
   private JButton createNeuralNetworkButton;
+  private JTextPane networkInformationTextPane;
+  private JScrollPane terminalScrollPane;
   private JPanel chartJPanel;
   private List<Double> trainingErrors;
   private NetworkConfiguration neuralNetworkConfiguraion;
@@ -155,7 +156,8 @@ public class MainWindow extends JFrame implements IMainWindow {
   }
 
   private void updateNeuralNetworkInformation() {
-    // TODO
+    networkInformationTextPane.setText(
+        "Neural network information:\n" + neuralNetworkConfiguraion.toString());
   }
 
   @Override
@@ -231,6 +233,10 @@ public class MainWindow extends JFrame implements IMainWindow {
                               + " : "
                               + Arrays.toString(result)
                               + "\n"));
+
+              // scroll to bottom
+              JScrollBar verticalScrollBar = terminalScrollPane.getVerticalScrollBar();
+              verticalScrollBar.setValue(verticalScrollBar.getMaximum());
             } catch (InterruptedException | ExecutionException e) {
               throw new RuntimeException(e);
             }

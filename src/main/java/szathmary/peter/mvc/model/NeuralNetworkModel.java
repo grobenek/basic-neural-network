@@ -49,6 +49,8 @@ public class NeuralNetworkModel implements IModel {
         configuration.numberOfOutputNeurons(), configuration.outputLayerActivationFunction());
 
     neuralNetwork = networkBuilder.build();
+
+    sendNotifications();
   }
 
   @Override

@@ -43,16 +43,13 @@ public class PredictDataDialog extends JDialog {
         KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
         JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-    SwingUtilities.invokeLater(
-        () -> {
-          for (int i = 0; i < numberOfInputs; i++) {
-            inputPanel.add(new JLabel(i + 1 + " input"));
-            JTextField textField = new JTextField();
-            inputPanel.add(textField);
+    for (int i = 0; i < numberOfInputs; i++) {
+      inputPanel.add(new JLabel(i + 1 + " input"));
+      JTextField textField = new JTextField();
+      inputPanel.add(textField);
 
-            inputFields.add(textField);
-          }
-        });
+      inputFields.add(textField);
+    }
 
     setSize(400, 200);
     setAutoRequestFocus(true);
@@ -62,7 +59,8 @@ public class PredictDataDialog extends JDialog {
   }
 
   private void onOK() {
-    double[] inputs = inputFields.stream().mapToDouble(field -> Double.parseDouble(field.getText())).toArray();
+    double[] inputs =
+        inputFields.stream().mapToDouble(field -> Double.parseDouble(field.getText())).toArray();
 
     dispose();
 
