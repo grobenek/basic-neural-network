@@ -1,6 +1,5 @@
 package szathmary.peter;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import szathmary.peter.mvc.controller.Controller;
@@ -9,10 +8,8 @@ import szathmary.peter.mvc.model.IModel;
 import szathmary.peter.mvc.model.NetworkConfiguration;
 import szathmary.peter.mvc.model.NeuralNetworkModel;
 import szathmary.peter.mvc.view.MainWindow;
-import szathmary.peter.neuralnetwork.csvreader.CsvReader;
-import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
-import szathmary.peter.neuralnetwork.errorfunctions.Mse;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
+import szathmary.peter.neuralnetwork.network.NeuralNetworkBuilder;
 import szathmary.peter.neuralnetwork.trainingalgorithms.BackPropagation;
 import szathmary.peter.neuralnetwork.trainingalgorithms.TrainingAlgorithm;
 
@@ -23,16 +20,16 @@ public class Main {
     TrainingAlgorithm trainingAlgorithm = new BackPropagation(0.0001);
 
     IModel model = new NeuralNetworkModel(trainingAlgorithm);
-//
-//    model.initializeNetwork(
-//        new NetworkConfiguration(
-//            1,
-//            ActivationFunction.IDENTITY,
-//            1,
-//            new int[] {5},
-//            new ActivationFunction[] {ActivationFunction.SIGMOID},
-//            1,
-//            ActivationFunction.TANH));
+
+    model.initializeNetwork(
+        new NetworkConfiguration(
+            5,
+            ActivationFunction.IDENTITY,
+            1,
+            new int[] {5},
+            new ActivationFunction[] {ActivationFunction.SIGMOID},
+            1,
+            ActivationFunction.TANH));
 //
 //    CsvReader csvReader = new CsvReader("sin_data.csv");
 //    double[][] data = csvReader.readCsv();

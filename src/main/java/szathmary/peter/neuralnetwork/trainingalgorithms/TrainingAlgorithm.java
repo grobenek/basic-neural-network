@@ -37,14 +37,16 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
 
     for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
       double totalError = 0;
+      double[] trainingErrors = new double[inputs.length];
 
       for (int i = 0; i < inputs.length; i++) {
         double[] input = inputs[i];
         double[] expectedOutput = expectedOutputs[i];
 
-        trainOnSelectedData(neuralNetwork, input, expectedOutput, errorFunction);
+        trainOnSelectedData(neuralNetwork, input, expectedOutput);
 
         totalError += this.lastError;
+        trainingErrors[i] = this.lastError; //TODO MAPE treba vyratat z tychto errrov. Takze Error funkciu prerobit a nejako tu vyuzit
       }
 
       double averageError = totalError / inputs.length;
@@ -60,11 +62,9 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   private void trainOnSelectedData(
       NeuralNetwork neuralNetwork,
       double[] input,
-      double[] expectedOutput,
-      IErrorFunction errorFunction) {
+      double[] expectedOutput) {
     forwardPropagate(neuralNetwork, input);
 
-//    double error = calculateError(neuralNetwork, expectedOutput, errorFunction);
     double error = expectedOutput[0] - neuralNetwork.getOutput()[0];
     this.lastError = Math.pow(error, 2);
     backPropagate(neuralNetwork, error);

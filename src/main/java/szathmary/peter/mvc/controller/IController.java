@@ -17,12 +17,14 @@ public interface IController extends IObserver, INeuralNetworkObservable {
 
   void trainNetwork(
       IErrorFunction errorFunction,
-      double[][] inputs,
-      double[][] expectedOutputs,
       int numberOfEpochs,
       double minErrorTreshold);
 
   void testNetwork(IErrorFunction errorFunction, double[][] inputs, double[][] expectedOutputs);
 
   double[] predict(double[] input);
+
+  int getNumberOfInputs();
+
+  void setTrainingData(double[][] inputs, double[][] outputs);
 }

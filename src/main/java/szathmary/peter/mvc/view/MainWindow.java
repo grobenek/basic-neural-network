@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.swing.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -21,6 +22,7 @@ import szathmary.peter.neuralnetwork.errorfunctions.Mse;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class MainWindow extends JFrame implements IMainWindow {
+  private final IErrorFunction errorFunction = new Mse();
   private final IController controller;
   private final IModel model;
   private DefaultCategoryDataset dataset;
@@ -33,10 +35,14 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JComboBox<ActivationFunction> outputLayerActivationFunctionComboBox;
   private JButton trainNetworkButton;
   private JButton testNetworkButton;
-  private JButton chooseDataButton;
+  private JButton chooseTrainingDataButton;
   private JPanel hiddenLayersJPanel;
-  private JTextPane terminalTextPane;
+  private JTextArea terminalTextArea;
   private JButton predictButton;
+  private JTextField textField1;
+  private JButton confirmNumberOfHiddenLayersButton;
+  private JButton chooseTestingDataButton;
+  private JButton createNeuralNetworkButton;
   private JPanel chartJPanel;
   private List<Double> trainingErrors;
   private NetworkConfiguration neuralNetworkConfiguraion;
@@ -59,41 +65,23 @@ public class MainWindow extends JFrame implements IMainWindow {
     setVisible(true);
     trainNetworkButton.addActionListener(
         e -> {
-          terminalTextPane.setText("Training network!");
-          SwingWorker<Void, Void> worker =
-              new SwingWorker<>() {
-                @Override
-                protected Void doInBackground() {
-                  model.initializeNetwork(
-                      new NetworkConfiguration(
-                          1,
-                          ActivationFunction.IDENTITY,
-                          1,
-                          new int[] {2},
-                          new ActivationFunction[] {ActivationFunction.TANH},
-                          1,
-                          ActivationFunction.IDENTITY));
+          TrainNetworkDialog trainNetworkDialog = new TrainNetworkDialog(this);
+        });
 
-                  CsvReader csvReader = new CsvReader("sin_data.csv");
-                  double[][] data = csvReader.readCsv();
-                  System.out.println(data[0].length);
+    predictButton.addActionListener(
+        actionEvent -> {
+          PredictDataDialog predictDataDialog =
+              new PredictDataDialog(this, controller.getNumberOfInputs());
+        });
 
-                  IErrorFunction errorFunction = new Mse();
+    createNeuralNetworkButton.addActionListener(
+        actionEvent -> {
+          initializeNetwork();
+        });
 
-                  double[][] inputs = new double[data[0].length][1];
-                  double[][] outputs = new double[data[1].length][1];
-
-                  for (int i = 0; i < data[0].length; i++) {
-                    inputs[i][0] = data[0][i];
-                    outputs[i][0] = data[1][i];
-                  }
-
-                  model.trainNetwork(errorFunction, inputs, outputs, 100, Double.MIN_VALUE);
-                  return null;
-                }
-              };
-
-          worker.execute();
+    chooseTrainingDataButton.addActionListener(
+        actionEvent -> {
+          loadData();
         });
   }
 
@@ -147,16 +135,13 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     for (int i = 0; i < trainingErrors.size(); i++) {
       sb.append("Epoch ")
-          .append(i)
+          .append(i + 1)
           .append(" :  Average error = ")
           .append(trainingErrors.get(i))
           .append(System.lineSeparator());
     }
 
-    double predictionInput = 0.618;
-    sb.append("PREDICTION FOR NUMBER ").append(predictionInput).append(": ").append(Arrays.toString(model.predict(new double[]{predictionInput})));
-
-    terminalTextPane.setText(sb.toString());
+    terminalTextArea.setText(sb.toString());
   }
 
   private void redrawChart() {
@@ -175,12 +160,31 @@ public class MainWindow extends JFrame implements IMainWindow {
 
   @Override
   public void initializeNetwork() {
-    // TODO
+    model.initializeNetwork(
+        new NetworkConfiguration(
+            1,
+            ActivationFunction.IDENTITY,
+            1,
+            new int[] {2},
+            new ActivationFunction[] {ActivationFunction.TANH},
+            1,
+            ActivationFunction.IDENTITY));
   }
 
   @Override
-  public void trainNetwork() {
-    // TODO treba dat dialog na train info
+  public void trainNetwork(int numberOfEpochs) {
+    terminalTextArea.setText("Training network!");
+
+    SwingWorker<Void, Void> worker =
+        new SwingWorker<>() {
+          @Override
+          protected Void doInBackground() {
+            model.trainNetwork(errorFunction, numberOfEpochs, Double.MIN_VALUE);
+            return null;
+          }
+        };
+
+    worker.execute();
   }
 
   @Override
@@ -190,6 +194,49 @@ public class MainWindow extends JFrame implements IMainWindow {
 
   @Override
   public void loadData() {
-    // TODO dialog kde sa vyberie file
+    CsvReader csvReader = new CsvReader("sin_data.csv");
+    double[][] data = csvReader.readCsv();
+    System.out.println(data[0].length);
+
+    double[][] inputs = new double[data[0].length][1];
+    double[][] outputs = new double[data[1].length][1];
+
+    for (int i = 0; i < data[0].length; i++) {
+      inputs[i][0] = data[0][i];
+      outputs[i][0] = data[1][i];
+    }
+
+    controller.setTrainingData(inputs, outputs);
+  }
+
+  @Override
+  public void predict(double[] inputs) {
+    SwingWorker<double[], Void> worker =
+        new SwingWorker<>() {
+          @Override
+          protected double[] doInBackground() {
+            return model.predict(inputs);
+          }
+
+          @Override
+          protected void done() {
+            try {
+              double[] result = get();
+
+              SwingUtilities.invokeLater(
+                  () ->
+                      terminalTextArea.append(
+                          "Result for prediction "
+                              + Arrays.toString(inputs)
+                              + " : "
+                              + Arrays.toString(result)
+                              + "\n"));
+            } catch (InterruptedException | ExecutionException e) {
+              throw new RuntimeException(e);
+            }
+          }
+        };
+
+    worker.execute();
   }
 }

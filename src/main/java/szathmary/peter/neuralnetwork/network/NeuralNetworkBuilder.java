@@ -17,7 +17,7 @@ public class NeuralNetworkBuilder {
     return layer;
   }
 
-  public NeuralNetworkBuilder addLayer(int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
+  public NeuralNetworkBuilder addHiddenLayer(int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
 
     int neuronInputSize;
     if (neuralNetwork.getNumberOfHiddenLayers() == 0) {
@@ -29,7 +29,7 @@ public class NeuralNetworkBuilder {
 
       neuronInputSize = inputLayer.getNeuronCount();
     } else {
-      neuronInputSize = neuralNetwork.getHiddenLayer(neuralNetwork.getNumberOfLayers() - 1).getNeuronCount();
+      neuronInputSize = neuralNetwork.getHiddenLayer(neuralNetwork.getNumberOfHiddenLayers() - 1).getNeuronCount();
     }
 
     Layer layer = createLayer(numberOfNeuronsInLayer, neuronInputSize, activationFunctionName);

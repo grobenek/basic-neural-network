@@ -48,11 +48,9 @@ public class Controller implements IController {
   @Override
   public void trainNetwork(
       IErrorFunction errorFunction,
-      double[][] inputs,
-      double[][] expectedOutputs,
       int numberOfEpochs,
       double minErrorTreshold) {
-    model.trainNetwork(errorFunction, inputs, expectedOutputs, numberOfEpochs, minErrorTreshold);
+    model.trainNetwork(errorFunction, numberOfEpochs, minErrorTreshold);
   }
 
   @Override
@@ -64,6 +62,16 @@ public class Controller implements IController {
   @Override
   public double[] predict(double[] input) {
     return model.predict(input);
+  }
+
+  @Override
+  public int getNumberOfInputs() {
+    return model.getNumberOfInputs();
+  }
+
+  @Override
+  public void setTrainingData(double[][] inputs, double[][] outputs) {
+    model.setTrainingData(inputs, outputs);
   }
 
   @Override

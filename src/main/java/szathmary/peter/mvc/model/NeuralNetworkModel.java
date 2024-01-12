@@ -18,6 +18,8 @@ public class NeuralNetworkModel implements IModel {
   private NeuralNetwork neuralNetwork;
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
+  private double[][] trainingInputs;
+  private double[][] trainingOutputs;
 
   public NeuralNetworkModel(TrainingAlgorithm trainingAlgorithm) {
     this.trainingAlgorithm = trainingAlgorithm;
@@ -38,7 +40,7 @@ public class NeuralNetworkModel implements IModel {
         configuration.numberOfInputNeurons(), configuration.inputLayerActivationFunction());
 
     for (int i = 0; i < configuration.numberOfHiddenLayers(); i++) {
-      networkBuilder.addLayer(
+      networkBuilder.addHiddenLayer(
           configuration.hiddenLayersNumberOfNeurons()[i],
           configuration.hiddenLayersActivationFunctions()[i]);
     }
@@ -52,12 +54,10 @@ public class NeuralNetworkModel implements IModel {
   @Override
   public void trainNetwork(
       IErrorFunction errorFunction,
-      double[][] inputs,
-      double[][] expectedOutputs,
       int numberOfEpochs,
       double minErrorTreshold) {
     trainingAlgorithm.train(
-        neuralNetwork, errorFunction, inputs, expectedOutputs, numberOfEpochs, minErrorTreshold);
+        neuralNetwork, errorFunction, trainingInputs, trainingOutputs, numberOfEpochs, minErrorTreshold);
     trainingErrorList = trainingAlgorithm.getErrors();
     sendNotifications();
   }
@@ -70,6 +70,17 @@ public class NeuralNetworkModel implements IModel {
   public double[] predict(double[] input) {
     neuralNetwork.processInput(input);
     return neuralNetwork.getOutput();
+  }
+
+  @Override
+  public int getNumberOfInputs() {
+    return neuralNetwork.getInputLayer().getNeuronCount();
+  }
+
+  @Override
+  public void setTrainingData(double[][] inputs, double[][] outputs) {
+    trainingInputs = inputs;
+    trainingOutputs = outputs;
   }
 
   @Override
