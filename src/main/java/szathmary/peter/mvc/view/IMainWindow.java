@@ -17,7 +17,7 @@ public interface IMainWindow extends IObserver {
 
   void testNetwork();
 
-  void loadData();
+  void loadData(String filePath);
 
   void predict(double[] inputs);
   void setTrainingAlgorithm(double learningRate);

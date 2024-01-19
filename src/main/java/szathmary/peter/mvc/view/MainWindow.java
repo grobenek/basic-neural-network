@@ -22,6 +22,7 @@ import szathmary.peter.neuralnetwork.errorfunctions.Mse;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class MainWindow extends JFrame implements IMainWindow {
+  public static final int NUMBER_OF_X_POINTS = 18;
   private final IErrorFunction errorFunction = new Mse();
   private final IController controller;
   private DefaultCategoryDataset dataset;
@@ -77,14 +78,14 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     chooseTrainingDataButton.addActionListener(
         actionEvent -> {
-          loadData();
+          ChooseDataDialog chooseDataDialog = new ChooseDataDialog(this);
         });
   }
 
   public void createUIComponents() {
-    this.dataset = new DefaultCategoryDataset();
+    dataset = new DefaultCategoryDataset();
 
-    this.lineChart =
+    lineChart =
         ChartFactory.createLineChart(
             "Train errors",
             "Epoch",
@@ -92,10 +93,10 @@ public class MainWindow extends JFrame implements IMainWindow {
             dataset,
             PlotOrientation.VERTICAL,
             false,
-            true,
+            false,
             false);
 
-    this.chartPanel = new ChartPanel(lineChart);
+    chartPanel = new ChartPanel(lineChart);
   }
 
   @Override
@@ -135,8 +136,12 @@ public class MainWindow extends JFrame implements IMainWindow {
   private void redrawChart() {
     dataset.clear();
 
+    int interval = trainingErrors.size() / (NUMBER_OF_X_POINTS - 1);
+
     for (int i = 0; i < trainingErrors.size(); i++) {
-      dataset.addValue(trainingErrors.get(i), "row 0", String.valueOf(i));
+      if (i % interval == 0 || i == trainingErrors.size() - 1) {
+        dataset.addValue(trainingErrors.get(i), "Error", String.valueOf(i + 1));
+      }
     }
 
     lineChart.fireChartChanged();
@@ -188,7 +193,8 @@ public class MainWindow extends JFrame implements IMainWindow {
   @Override
   public void trainNetwork(int numberOfEpochs) {
     terminalTextArea.setText("Training network!");
-    SwingUtilities.invokeLater(() -> progressBar.setVisible(true));
+    progressBar.setVisible(true);
+    progressBar.repaint();
 
     SwingWorker<Void, Void> worker =
         new SwingWorker<>() {
@@ -202,9 +208,13 @@ public class MainWindow extends JFrame implements IMainWindow {
           protected void done() {
             try {
               get();
-              SwingUtilities.invokeLater(() -> progressBar.setVisible(true));
-            } catch (InterruptedException | ExecutionException e) {
+              progressBar.setIndeterminate(false);
               progressBar.setVisible(false);
+              progressBar.repaint();
+            } catch (InterruptedException | ExecutionException e) {
+              progressBar.setIndeterminate(false);
+              progressBar.setVisible(false);
+              progressBar.repaint();
               showErrorMessage(e.getLocalizedMessage());
             }
           }
@@ -219,8 +229,8 @@ public class MainWindow extends JFrame implements IMainWindow {
   }
 
   @Override
-  public void loadData() {
-    CsvReader csvReader = new CsvReader("sin_data.csv");
+  public void loadData(String filePath) {
+    CsvReader csvReader = new CsvReader(filePath);
     double[][] data = csvReader.readCsv();
     System.out.println(data[0].length);
 
