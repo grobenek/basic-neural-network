@@ -13,18 +13,15 @@ import szathmary.peter.neuralnetwork.network.NeuralNetworkBuilder;
 import szathmary.peter.neuralnetwork.trainingalgorithms.TrainingAlgorithm;
 
 public class NeuralNetworkModel implements IModel {
-  private final TrainingAlgorithm trainingAlgorithm;
   private final List<IObserver> observerList = new ArrayList<>();
+  private TrainingAlgorithm trainingAlgorithm;
   private NeuralNetwork neuralNetwork;
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
   private double[][] trainingInputs;
   private double[][] trainingOutputs;
 
-  public NeuralNetworkModel(TrainingAlgorithm trainingAlgorithm) {
-    this.trainingAlgorithm = trainingAlgorithm;
-    trainingAlgorithm.attach(this);
-  }
+  public NeuralNetworkModel() {}
 
   @Override
   public void initializeNetwork(NetworkConfiguration configuration) {
@@ -55,11 +52,14 @@ public class NeuralNetworkModel implements IModel {
 
   @Override
   public void trainNetwork(
-      IErrorFunction errorFunction,
-      int numberOfEpochs,
-      double minErrorTreshold) {
+      IErrorFunction errorFunction, int numberOfEpochs, double minErrorTreshold) {
     trainingAlgorithm.train(
-        neuralNetwork, errorFunction, trainingInputs, trainingOutputs, numberOfEpochs, minErrorTreshold);
+        neuralNetwork,
+        errorFunction,
+        trainingInputs,
+        trainingOutputs,
+        numberOfEpochs,
+        minErrorTreshold);
     trainingErrorList = trainingAlgorithm.getErrors();
     sendNotifications();
   }
@@ -83,6 +83,20 @@ public class NeuralNetworkModel implements IModel {
   public void setTrainingData(double[][] inputs, double[][] outputs) {
     trainingInputs = inputs;
     trainingOutputs = outputs;
+  }
+
+  @Override
+  public void setTrainingAlgorithm(TrainingAlgorithm trainingAlgorithm) {
+    if (trainingAlgorithm == null) {
+      throw new IllegalArgumentException("Cannot set null training algorithm!");
+    }
+
+    if (this.trainingAlgorithm != null) {
+      trainingAlgorithm.detach(this);
+    }
+
+    this.trainingAlgorithm = trainingAlgorithm;
+    trainingAlgorithm.attach(this);
   }
 
   @Override

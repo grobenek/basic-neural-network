@@ -3,6 +3,7 @@ package szathmary.peter.mvc.model;
 import szathmary.peter.mvc.observable.INeuralNetworkObservable;
 import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
+import szathmary.peter.neuralnetwork.trainingalgorithms.TrainingAlgorithm;
 
 public interface IModel extends IObserver, INeuralNetworkObservable {
   void initializeNetwork(NetworkConfiguration configuration);
@@ -19,4 +20,5 @@ public interface IModel extends IObserver, INeuralNetworkObservable {
     int getNumberOfInputs();
 
   void setTrainingData(double[][] inputs, double[][] outputs);
+  void setTrainingAlgorithm(TrainingAlgorithm trainingAlgorithm);
 }

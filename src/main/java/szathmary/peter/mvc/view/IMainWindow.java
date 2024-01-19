@@ -20,4 +20,6 @@ public interface IMainWindow extends IObserver {
   void loadData();
 
   void predict(double[] inputs);
+  void setTrainingAlgorithm(double learningRate);
+  void showErrorMessage(String message);
 }

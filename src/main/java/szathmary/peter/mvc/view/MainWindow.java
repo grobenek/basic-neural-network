@@ -1,5 +1,6 @@
 package szathmary.peter.mvc.view;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +13,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import szathmary.peter.mvc.controller.IController;
-import szathmary.peter.mvc.model.IModel;
 import szathmary.peter.mvc.model.NetworkConfiguration;
 import szathmary.peter.mvc.observable.INeuralNetworkObservable;
 import szathmary.peter.mvc.observable.IObservable;
@@ -24,7 +24,6 @@ import szathmary.peter.neuralnetwork.network.ActivationFunction;
 public class MainWindow extends JFrame implements IMainWindow {
   private final IErrorFunction errorFunction = new Mse();
   private final IController controller;
-  private final IModel model;
   private DefaultCategoryDataset dataset;
   private JFreeChart lineChart;
   private JPanel mainPanel;
@@ -38,14 +37,16 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JButton createNeuralNetworkButton;
   private JTextPane networkInformationTextPane;
   private JScrollPane terminalScrollPane;
+  private JProgressBar progressBar;
   private JPanel chartJPanel;
   private List<Double> trainingErrors;
   private NetworkConfiguration neuralNetworkConfiguraion;
 
-  public MainWindow(IController controller, IModel model) {
+  public MainWindow(IController controller) {
     this.controller = controller;
     this.controller.attach(this);
-    this.model = model;
+
+    progressBar.setVisible(false);
 
     this.trainingErrors = new ArrayList<>();
 
@@ -170,6 +171,15 @@ public class MainWindow extends JFrame implements IMainWindow {
                 outputLayerActivationFunction);
             return null;
           }
+
+          @Override
+          protected void done() {
+            try {
+              get();
+            } catch (InterruptedException | ExecutionException e) {
+              showErrorMessage(e.getLocalizedMessage());
+            }
+          }
         };
 
     worker.execute();
@@ -178,13 +188,25 @@ public class MainWindow extends JFrame implements IMainWindow {
   @Override
   public void trainNetwork(int numberOfEpochs) {
     terminalTextArea.setText("Training network!");
+    SwingUtilities.invokeLater(() -> progressBar.setVisible(true));
 
     SwingWorker<Void, Void> worker =
         new SwingWorker<>() {
           @Override
           protected Void doInBackground() {
-            model.trainNetwork(errorFunction, numberOfEpochs, Double.MIN_VALUE);
+            controller.trainNetwork(errorFunction, numberOfEpochs, Double.MIN_VALUE);
             return null;
+          }
+
+          @Override
+          protected void done() {
+            try {
+              get();
+              SwingUtilities.invokeLater(() -> progressBar.setVisible(true));
+            } catch (InterruptedException | ExecutionException e) {
+              progressBar.setVisible(false);
+              showErrorMessage(e.getLocalizedMessage());
+            }
           }
         };
 
@@ -219,7 +241,7 @@ public class MainWindow extends JFrame implements IMainWindow {
         new SwingWorker<>() {
           @Override
           protected double[] doInBackground() {
-            return model.predict(inputs);
+            return controller.predict(inputs);
           }
 
           @Override
@@ -240,11 +262,30 @@ public class MainWindow extends JFrame implements IMainWindow {
               JScrollBar verticalScrollBar = terminalScrollPane.getVerticalScrollBar();
               verticalScrollBar.setValue(verticalScrollBar.getMaximum());
             } catch (InterruptedException | ExecutionException e) {
-              throw new RuntimeException(e);
+              showErrorMessage(e.getLocalizedMessage());
             }
           }
         };
 
     worker.execute();
+  }
+
+  @Override
+  public void setTrainingAlgorithm(double learningRate) {
+    controller.setTrainingAlgorithm(learningRate);
+  }
+
+  @Override
+  public void showErrorMessage(String message) {
+    // setting maximum size - errors are often long
+    JTextArea errorTextArea = new JTextArea(message);
+    errorTextArea.setLineWrap(true);
+    errorTextArea.setWrapStyleWord(true);
+    errorTextArea.setEditable(false);
+
+    JScrollPane scrollPane = new JScrollPane(errorTextArea);
+    scrollPane.setPreferredSize(new Dimension(500, 300));
+
+    JOptionPane.showMessageDialog(this, scrollPane, "Nastala chyba :(", JOptionPane.ERROR_MESSAGE);
   }
 }

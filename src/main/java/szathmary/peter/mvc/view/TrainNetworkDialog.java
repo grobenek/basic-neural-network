@@ -10,6 +10,7 @@ public class TrainNetworkDialog extends JDialog {
   private JButton buttonOK;
   private JButton buttonCancel;
   private JTextField numberOfEpochsTextField;
+  private JTextField learningRateTextField;
 
   public TrainNetworkDialog(IMainWindow mainWindow) {
     this.mainWindow = mainWindow;
@@ -46,6 +47,8 @@ public class TrainNetworkDialog extends JDialog {
 
   private void onOK() {
     dispose();
+
+    mainWindow.setTrainingAlgorithm(Double.parseDouble(learningRateTextField.getText()));
     mainWindow.trainNetwork(Integer.parseInt(numberOfEpochsTextField.getText()));
   }
 

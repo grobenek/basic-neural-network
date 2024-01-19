@@ -60,7 +60,13 @@ public class PredictDataDialog extends JDialog {
 
   private void onOK() {
     double[] inputs =
-        inputFields.stream().mapToDouble(field -> Double.parseDouble(field.getText())).toArray();
+            new double[0];
+    try {
+      inputs = inputFields.stream().mapToDouble(field -> Double.parseDouble(field.getText())).toArray();
+    } catch (Exception e) {
+      mainWindow.showErrorMessage(e.getLocalizedMessage());
+      dispose();
+    }
 
     dispose();
 
@@ -68,7 +74,6 @@ public class PredictDataDialog extends JDialog {
   }
 
   private void onCancel() {
-    // add your code here if necessary
     dispose();
   }
 

@@ -11,6 +11,7 @@ import szathmary.peter.mvc.observable.IObservable;
 import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
+import szathmary.peter.neuralnetwork.trainingalgorithms.BackPropagation;
 
 public class Controller implements IController {
   private final IModel model;
@@ -72,6 +73,11 @@ public class Controller implements IController {
   @Override
   public void setTrainingData(double[][] inputs, double[][] outputs) {
     model.setTrainingData(inputs, outputs);
+  }
+
+  @Override
+  public void setTrainingAlgorithm(double learningRate) {
+    model.setTrainingAlgorithm(new BackPropagation(learningRate));
   }
 
   @Override

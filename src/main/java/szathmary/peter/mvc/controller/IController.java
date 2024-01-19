@@ -27,4 +27,5 @@ public interface IController extends IObserver, INeuralNetworkObservable {
   int getNumberOfInputs();
 
   void setTrainingData(double[][] inputs, double[][] outputs);
+  void setTrainingAlgorithm(double learningRate);
 }
