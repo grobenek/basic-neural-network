@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CsvReader {
-  private String filePath;
-  private List<Double> inputList;
-  private List<Double> expectedOuputList;
+  private final String filePath;
+  private final List<Double> inputList;
+  private final List<Double> expectedOuputList;
 
   public CsvReader(String filePath) {
     this.filePath = filePath;

@@ -128,7 +128,6 @@ public class BackPropagation extends TrainingAlgorithm {
     for (Neuron hiddenNeuron : hiddenLayer.getNeuronList()) {
       double outputNeuronWeight = outputNeuron.getWeights()[hiddenLayer.getNeuronList().indexOf(hiddenNeuron)];
       double derivative = hiddenNeuron.getActivationFunction().applyForDerivation(hiddenNeuron.getWeightedInput());
-
       double errorForHiddenNeuron = outputNeuronWeight * derivative * outputNeuron.getOutput();
 
       for (int i = 0; i < hiddenNeuron.getWeights().length; i++) {
