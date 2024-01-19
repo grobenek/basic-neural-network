@@ -29,17 +29,11 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JFreeChart lineChart;
   private JPanel mainPanel;
   private ChartPanel chartPanel;
-  private JComboBox<ActivationFunction> inputLayerActivationFunctionComboBox;
-  private JTextField inputLayerNumberOfNeuronsInput;
-  private JTextField outputLayerNumberOfNeuronsTextField;
-  private JComboBox<ActivationFunction> outputLayerActivationFunctionComboBox;
   private JButton trainNetworkButton;
   private JButton testNetworkButton;
   private JButton chooseTrainingDataButton;
-  private JPanel hiddenLayersJPanel;
   private JTextArea terminalTextArea;
   private JButton predictButton;
-  private JTextField textField1;
   private JButton chooseTestingDataButton;
   private JButton createNeuralNetworkButton;
   private JTextPane networkInformationTextPane;
@@ -54,9 +48,6 @@ public class MainWindow extends JFrame implements IMainWindow {
     this.model = model;
 
     this.trainingErrors = new ArrayList<>();
-
-    fillComboBoxes(
-        List.of(inputLayerActivationFunctionComboBox, outputLayerActivationFunctionComboBox));
 
     setContentPane(mainPanel);
     setTitle("Simple neural network");
@@ -77,7 +68,8 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     createNeuralNetworkButton.addActionListener(
         actionEvent -> {
-          initializeNetwork();
+          InitializeNeuralNetworkDialog initializeNeuralNetworkDialog =
+              new InitializeNeuralNetworkDialog(this);
         });
 
     chooseTrainingDataButton.addActionListener(
@@ -161,16 +153,23 @@ public class MainWindow extends JFrame implements IMainWindow {
   }
 
   @Override
-  public void initializeNetwork() {
-    model.initializeNetwork(
-        new NetworkConfiguration(
-            1,
-            ActivationFunction.IDENTITY,
-            1,
-            new int[] {2},
-            new ActivationFunction[] {ActivationFunction.TANH},
-            1,
-            ActivationFunction.IDENTITY));
+  public void initializeNetwork(
+      int numberOfInputNeurons,
+      ActivationFunction inputLayerActivationFunction,
+      int numberOfHiddenLayers,
+      int[] hiddenLayersNumberOfNeurons,
+      ActivationFunction[] hiddenLayersActivationFunctions,
+      int numberOfOutputNeurons,
+      ActivationFunction outputLayerActivationFunction) {
+
+    controller.initializeNetwork(
+        numberOfInputNeurons,
+        inputLayerActivationFunction,
+        numberOfHiddenLayers,
+        hiddenLayersNumberOfNeurons,
+        hiddenLayersActivationFunctions,
+        numberOfOutputNeurons,
+        outputLayerActivationFunction);
   }
 
   @Override
