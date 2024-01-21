@@ -24,6 +24,8 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       double[][] expectedOutputs,
       int numberOfEpochs) {
 
+    //TODO zapamatat si najlepsie vahy a tie pouzivat
+
     if (inputs.length != expectedOutputs.length) {
       throw new IllegalArgumentException(
           String.format(
@@ -54,6 +56,8 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
               + errorFunction.getClass().getSimpleName()
               + " error = "
               + calculatedError);
+
+
     }
   }
 
