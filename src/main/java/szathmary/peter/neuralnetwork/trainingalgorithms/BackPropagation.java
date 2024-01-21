@@ -17,13 +17,6 @@ public class BackPropagation extends TrainingAlgorithm {
   }
 
   @Override
-  protected double calculateError(
-      NeuralNetwork neuralNetwork, double[] expectedOutput, IErrorFunction errorFunction) {
-
-    return errorFunction.calculateError(neuralNetwork.getOutput(), expectedOutput);
-  }
-
-  @Override
   protected void backPropagate(NeuralNetwork neuralNetwork, double error) {
     if (neuralNetwork.getNumberOfLayers() != 3) {
       throw new IllegalStateException(

@@ -15,6 +15,7 @@ public class NeuralNetwork implements INeuronComponent {
 
   void setInputLayer(Layer layer) {
     inputLayer = layer;
+    inputLayer.setIsInputLayer(true);
   }
 
   void setOutputLayer(Layer layer) {

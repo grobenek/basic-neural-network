@@ -13,6 +13,9 @@ public class ChooseDataDialog extends JDialog {
   private JButton buttonCancel;
   private JFileChooser fileChooser;
   private JTextField numberOfInputsTextField;
+  private JTextField numberOfOutputColumnsTextField;
+  private JCheckBox hasHeaderCheckBox;
+  private JTextField delimiterTextField;
 
   public ChooseDataDialog(IMainWindow mainWindow) {
     this.mainWindow = mainWindow;
@@ -54,8 +57,11 @@ public class ChooseDataDialog extends JDialog {
   }
 
   private void onOK() {
-    mainWindow.loadData(fileChooser.getSelectedFile().getPath());
-    
+    mainWindow.loadData(
+        fileChooser.getSelectedFile().getPath(),
+        Integer.parseInt(numberOfInputsTextField.getText()),
+        Integer.parseInt(numberOfOutputColumnsTextField.getText()), hasHeaderCheckBox.isSelected(), delimiterTextField.getText());
+
     dispose();
   }
 

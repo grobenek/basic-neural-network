@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Layer implements INeuronComponent {
   private final List<Neuron> neuronList;
+  private boolean isInputLayer = false;
   private double[] outputs;
 
   public Layer(List<Neuron> neuronList) {
@@ -17,7 +18,8 @@ public class Layer implements INeuronComponent {
 
   public Neuron getNeuron(int index) {
     if (index < 0 || index >= neuronList.size()) {
-      throw new IndexOutOfBoundsException(String.format("Index %d is out of bounds for %d neurons!", index, neuronList.size()));
+      throw new IndexOutOfBoundsException(
+          String.format("Index %d is out of bounds for %d neurons!", index, neuronList.size()));
     }
 
     return neuronList.get(index);
@@ -34,10 +36,24 @@ public class Layer implements INeuronComponent {
     }
 
     outputs = new double[neuronList.size()];
-    for (int i = 0; i < neuronList.size(); i++) {
-      Neuron neuron = neuronList.get(i);
-      neuron.processInput(input);
-      outputs[i] = neuron.getOutput();
+
+    if (isInputLayer) {
+      // each neuron gets a single input
+      if (input.length != neuronList.size()) {
+        throw new IllegalArgumentException(
+            "Input size must match the number of neurons in the input layer");
+      }
+      for (int i = 0; i < neuronList.size(); i++) {
+        Neuron neuron = neuronList.get(i);
+        neuron.processInput(new double[] {input[i]}); // pass a single input to each neuron
+        outputs[i] = neuron.getOutput();
+      }
+    } else {
+      for (int i = 0; i < neuronList.size(); i++) {
+        Neuron neuron = neuronList.get(i);
+        neuron.processInput(input);
+        outputs[i] = neuron.getOutput();
+      }
     }
   }
 
@@ -51,5 +67,9 @@ public class Layer implements INeuronComponent {
 
   public List<Neuron> getNeuronList() {
     return neuronList;
+  }
+
+  public void setIsInputLayer(boolean isInputLayer) {
+    this.isInputLayer = isInputLayer;
   }
 }

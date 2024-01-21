@@ -1,19 +1,30 @@
 package szathmary.peter.neuralnetwork.errorfunctions;
 
-
 public class Sse implements IErrorFunction {
   @Override
-  public double calculateError(double[] output, double[] expectedOutput) {
+  public double calculateError(double[][] output, double[][] expectedOutput) {
+    if (output == null || expectedOutput == null) {
+      throw new IllegalArgumentException("Output arrays cannot be null.");
+    }
+
     if (output.length != expectedOutput.length) {
-      throw new IllegalArgumentException("Output and expected output have different lengths!");
+      throw new IllegalArgumentException("Output arrays must have the same length.");
     }
 
-    double sse = 0.0;
+    double sumSquaredError = 0;
+
     for (int i = 0; i < output.length; i++) {
-      double individualError = expectedOutput[i] - output[i];
-      sse += Math.pow(individualError, 2);
+      if (output[i].length != expectedOutput[i].length) {
+        throw new IllegalArgumentException(
+            "Inner arrays at index " + i + " must have the same length.");
+      }
+
+      for (int j = 0; j < output[i].length; j++) {
+        double error = expectedOutput[i][j] - output[i][j];
+        sumSquaredError += error * error;
+      }
     }
 
-    return sse;
+    return sumSquaredError;
   }
 }

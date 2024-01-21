@@ -58,8 +58,8 @@ public class NeuralNetworkModel implements IModel {
         errorFunction,
         trainingInputs,
         trainingOutputs,
-        numberOfEpochs,
-        minErrorTreshold);
+        numberOfEpochs
+    );
     trainingErrorList = trainingAlgorithm.getErrors();
     sendNotifications();
   }

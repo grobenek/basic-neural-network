@@ -1,6 +1,7 @@
 package szathmary.peter.mvc.view;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,13 +19,12 @@ import szathmary.peter.mvc.observable.INeuralNetworkObservable;
 import szathmary.peter.mvc.observable.IObservable;
 import szathmary.peter.neuralnetwork.csvreader.CsvReader;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
-import szathmary.peter.neuralnetwork.errorfunctions.Mse;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class MainWindow extends JFrame implements IMainWindow {
   public static final int NUMBER_OF_X_POINTS = 18;
-  private final IErrorFunction errorFunction = new Mse();
   private final IController controller;
+  private IErrorFunction errorFunction;
   private DefaultCategoryDataset dataset;
   private JFreeChart lineChart;
   private JPanel mainPanel;
@@ -71,6 +71,7 @@ public class MainWindow extends JFrame implements IMainWindow {
     createNeuralNetworkButton.addActionListener(
         actionEvent -> {
           terminalTextArea.setText("");
+          dataset.clear();
 
           InitializeNeuralNetworkDialog initializeNeuralNetworkDialog =
               new InitializeNeuralNetworkDialog(this);
@@ -125,7 +126,9 @@ public class MainWindow extends JFrame implements IMainWindow {
     for (int i = 0; i < trainingErrors.size(); i++) {
       sb.append("Epoch ")
           .append(i + 1)
-          .append(" :  Average error = ")
+          .append(" :  ")
+          .append(errorFunction.getClass().getSimpleName())
+          .append(" error = ")
           .append(trainingErrors.get(i))
           .append(System.lineSeparator());
     }
@@ -136,7 +139,12 @@ public class MainWindow extends JFrame implements IMainWindow {
   private void redrawChart() {
     dataset.clear();
 
-    int interval = trainingErrors.size() / (NUMBER_OF_X_POINTS - 1);
+    int interval;
+    if (trainingErrors.size() <= NUMBER_OF_X_POINTS) {
+      interval = 1;
+    } else {
+      interval = trainingErrors.size() / (NUMBER_OF_X_POINTS - 1);
+    }
 
     for (int i = 0; i < trainingErrors.size(); i++) {
       if (i % interval == 0 || i == trainingErrors.size() - 1) {
@@ -229,18 +237,19 @@ public class MainWindow extends JFrame implements IMainWindow {
   }
 
   @Override
-  public void loadData(String filePath) {
+  public void loadData(
+      String filePath,
+      int numberIfInputColumns,
+      int numberOfOutputColumns,
+      boolean hasHeader,
+      String delimiter) {
     CsvReader csvReader = new CsvReader(filePath);
-    double[][] data = csvReader.readCsv();
-    System.out.println(data[0].length);
+    csvReader.setHasHeader(hasHeader);
+    csvReader.setDelimiter(delimiter);
+    csvReader.readCsv(numberIfInputColumns, numberOfOutputColumns);
 
-    double[][] inputs = new double[data[0].length][1];
-    double[][] outputs = new double[data[1].length][1];
-
-    for (int i = 0; i < data[0].length; i++) {
-      inputs[i][0] = data[0][i];
-      outputs[i][0] = data[1][i];
-    }
+    double[][] inputs = csvReader.getInputDataArray();
+    double[][] outputs = csvReader.getExpectedOutputArray();
 
     controller.setTrainingData(inputs, outputs);
   }
@@ -297,5 +306,17 @@ public class MainWindow extends JFrame implements IMainWindow {
     scrollPane.setPreferredSize(new Dimension(500, 300));
 
     JOptionPane.showMessageDialog(this, scrollPane, "Nastala chyba :(", JOptionPane.ERROR_MESSAGE);
+  }
+
+  @Override
+  public void setErrorFunction(Class<IErrorFunction> selectedItem) {
+    try {
+      errorFunction = selectedItem.getDeclaredConstructor().newInstance();
+    } catch (InstantiationException
+        | NoSuchMethodException
+        | IllegalAccessException
+        | InvocationTargetException e) {
+      showErrorMessage(e.getLocalizedMessage());
+    }
   }
 }

@@ -19,7 +19,8 @@ public class NeuronFactory implements INeuronFactory {
   @Override
   public Neuron createInputLayerNeuron(
           int neuronInputSize, int numberOfNeuronsInLayer, ActivationFunction activationFunctionName) {
-    double[] weights = new double[neuronInputSize];
+//    double[] weights = new double[neuronInputSize];
+    double[] weights = new double[1];
 
     Arrays.fill(weights, 1);
 

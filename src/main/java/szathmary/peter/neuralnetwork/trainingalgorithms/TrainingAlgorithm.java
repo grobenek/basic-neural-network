@@ -11,7 +11,6 @@ import szathmary.peter.neuralnetwork.network.NeuralNetwork;
 public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   protected final double learningRate;
   private final List<IObserver> observerList = new ArrayList<>();
-  private double lastError;
   private List<Double> errorList = Collections.emptyList();
 
   public TrainingAlgorithm(double learningRate) {
@@ -21,10 +20,9 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   public final void train(
       NeuralNetwork neuralNetwork,
       IErrorFunction errorFunction,
-      double[][] inputs, // assuming inputs is an array of single numbers
-      double[][] expectedOutputs, // assuming expectedOutputs is an array of single numbers
-      int numberOfEpochs,
-      double minErrorTreshold) {
+      double[][] inputs,
+      double[][] expectedOutputs,
+      int numberOfEpochs) {
 
     if (inputs.length != expectedOutputs.length) {
       throw new IllegalArgumentException(
@@ -36,8 +34,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
     errorList = new ArrayList<>(numberOfEpochs);
 
     for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
-      double totalError = 0;
-      double[] trainingErrors = new double[inputs.length];
+      double[][] outputsAfterTraining = new double[inputs.length][inputs[0].length];
 
       for (int i = 0; i < inputs.length; i++) {
         double[] input = inputs[i];
@@ -45,35 +42,30 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
 
         trainOnSelectedData(neuralNetwork, input, expectedOutput);
 
-        totalError += this.lastError;
-        trainingErrors[i] = this.lastError; //TODO MAPE treba vyratat z tychto errrov. Takze Error funkciu prerobit a nejako tu vyuzit
+        outputsAfterTraining[i] = neuralNetwork.getOutput();
       }
 
-      double averageError = totalError / inputs.length;
-      errorList.add(averageError);
-      System.out.println("Epoch " + epoch + " : Average error = " + averageError);
-
-      if (averageError <= minErrorTreshold) {
-        break; // Stop training if error is below threshold //TODO zapamatat si najlepsie vahy a tie pouzit
-      }
+      double calculatedError = errorFunction.calculateError(outputsAfterTraining, expectedOutputs);
+      errorList.add(calculatedError);
+      System.out.println(
+          "Epoch "
+              + epoch
+              + " : "
+              + errorFunction.getClass().getSimpleName()
+              + " error = "
+              + calculatedError);
     }
   }
 
   private void trainOnSelectedData(
-      NeuralNetwork neuralNetwork,
-      double[] input,
-      double[] expectedOutput) {
+      NeuralNetwork neuralNetwork, double[] input, double[] expectedOutput) {
     forwardPropagate(neuralNetwork, input);
 
     double error = expectedOutput[0] - neuralNetwork.getOutput()[0];
-    this.lastError = Math.pow(error, 2);
     backPropagate(neuralNetwork, error);
   }
 
   protected abstract void forwardPropagate(NeuralNetwork neuralNetwork, double[] input);
-
-  protected abstract double calculateError(
-      NeuralNetwork neuralNetwork, double[] expectedOutput, IErrorFunction errorFunction);
 
   protected abstract void backPropagate(NeuralNetwork neuralNetwork, double error);
 
