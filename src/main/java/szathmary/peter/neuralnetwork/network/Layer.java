@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Layer implements INeuronComponent {
-  private final List<Neuron> neuronList;
+  private List<Neuron> neuronList;
   private boolean isInputLayer = false;
   private double[] outputs;
 
@@ -67,6 +67,10 @@ public class Layer implements INeuronComponent {
 
   public List<Neuron> getNeuronList() {
     return neuronList;
+  }
+
+  public void setNeurons(List<Neuron> pNeuronList) {
+    neuronList = pNeuronList;
   }
 
   public void setIsInputLayer(boolean isInputLayer) {

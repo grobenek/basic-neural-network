@@ -3,11 +3,10 @@ package szathmary.peter.neuralnetwork.network;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
-
 import szathmary.peter.Main;
 import szathmary.peter.neuralnetwork.activationfunctions.IActivationFunction;
 
-public class Neuron implements INeuronComponent {
+public class Neuron implements INeuronComponent, Cloneable {
   private final double[] weights;
   private final IActivationFunction activationFunction;
   private double weightedInput;
@@ -72,6 +71,21 @@ public class Neuron implements INeuronComponent {
   private double[] initializeWeights(int size) {
     Random random = Main.random;
     double scale = Math.sqrt(1.0 / size);
-    return Arrays.stream(new double[size]).map(weight -> scale * (2.0 * random.nextDouble() - 1.0)).toArray();
+    return Arrays.stream(new double[size])
+        .map(weight -> scale * (2.0 * random.nextDouble() - 1.0))
+        .toArray();
+  }
+
+  @Override
+  public Neuron clone() {
+    try {
+      Neuron clone = (Neuron) super.clone();
+      for (int i = 0; i < weights.length; i++) {
+        clone.setWeight(weights[i], i);
+      }
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError();
+    }
   }
 }

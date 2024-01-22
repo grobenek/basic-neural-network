@@ -1,7 +1,6 @@
 package szathmary.peter.neuralnetwork.network;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class NeuralNetwork implements INeuronComponent {
   private final List<Layer> hiddenLayers;
@@ -13,22 +12,14 @@ public class NeuralNetwork implements INeuronComponent {
     this.hiddenLayers = new ArrayList<>();
   }
 
-  void setInputLayer(Layer layer) {
-    inputLayer = layer;
-    inputLayer.setIsInputLayer(true);
-  }
-
-  void setOutputLayer(Layer layer) {
-    outputLayer = layer;
-  }
-
   void addLayer(Layer layer) {
     hiddenLayers.add(layer);
   }
 
   public Layer getHiddenLayer(int index) {
     if (index < 0 || index >= hiddenLayers.size()) {
-      throw new IndexOutOfBoundsException(String.format("Index %d is out of bounds for %d layers!", index, hiddenLayers.size()));
+      throw new IndexOutOfBoundsException(
+          String.format("Index %d is out of bounds for %d layers!", index, hiddenLayers.size()));
     }
 
     return hiddenLayers.get(index);
@@ -77,7 +68,52 @@ public class NeuralNetwork implements INeuronComponent {
     return inputLayer;
   }
 
+  void setInputLayer(Layer layer) {
+    inputLayer = layer;
+    inputLayer.setIsInputLayer(true);
+  }
+
   public Layer getOutputLayer() {
     return outputLayer;
+  }
+
+  void setOutputLayer(Layer layer) {
+    outputLayer = layer;
+  }
+
+  public List<Neuron> getClonedInputNeurons() {
+    return inputLayer.getNeuronList().stream().map(Neuron::clone).toList();
+  }
+
+  public List<List<Neuron>> getClonedHiddenLayersNeurons() {
+    List<List<Neuron>> hiddenLayersNeuronList = new ArrayList<>(getNumberOfHiddenLayers());
+
+    for (Layer hiddenLayer : hiddenLayers) {
+      List<Neuron> hiddenLayerNeuronList = hiddenLayer.getNeuronList();
+
+      List<Neuron> clonedList = hiddenLayerNeuronList.stream().map(Neuron::clone).toList();
+
+      hiddenLayersNeuronList.add(clonedList);
+    }
+
+    return hiddenLayersNeuronList;
+  }
+
+  public List<Neuron> getClonedOutputNeuronList() {
+    return outputLayer.getNeuronList().stream().map(Neuron::clone).toList();
+  }
+
+  public void setNeurons(
+      List<Neuron> inputNeurons,
+      List<List<Neuron>> hiddenLayersNeurons,
+      List<Neuron> outputNeurons) {
+    inputLayer.setNeurons(inputNeurons);
+
+    for (int i = 0; i < hiddenLayers.size(); i++) {
+      Layer hiddenLayer = hiddenLayers.get(i);
+      hiddenLayer.setNeurons(hiddenLayersNeurons.get(i));
+    }
+
+    outputLayer.setNeurons(outputNeurons);
   }
 }

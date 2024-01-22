@@ -10,10 +10,17 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="/WineQT.csv">
+        <entry key="/heart_encoded.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/sin_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value=";" />
             </Attribute>
           </value>
         </entry>

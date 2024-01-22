@@ -85,7 +85,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="0.001"/>
+              <text value="0.0000001"/>
             </properties>
           </component>
           <component id="e8074" class="javax.swing.JTextField" binding="numberOfEpochsTextField">
