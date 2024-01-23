@@ -23,6 +23,7 @@ public class NeuralNetworkModel implements IModel {
   private double[][] trainingOutputs;
   private double[][] testingInputs;
   private double[][] testingOutputs;
+  private double percantageOfCompletedTraining;
 
   public NeuralNetworkModel() {}
 
@@ -66,7 +67,6 @@ public class NeuralNetworkModel implements IModel {
         numberOfEpochs);
     trainingErrorList = trainingAlgorithm.getTrainingErrors();
     testingErrorList = trainingAlgorithm.getTestingErrors();
-    sendNotifications();
   }
 
   @Override
@@ -118,6 +118,9 @@ public class NeuralNetworkModel implements IModel {
 
     trainingErrorList = ((ITraningAlgorithmObservable) observable).getTrainingErrors();
     testingErrorList = ((ITraningAlgorithmObservable) observable).getTestingErrors();
+    percantageOfCompletedTraining = ((ITraningAlgorithmObservable) observable).getPercentageOfCompletedTraining();
+
+    sendNotifications();
   }
 
   @Override
@@ -150,5 +153,10 @@ public class NeuralNetworkModel implements IModel {
   @Override
   public List<Double> getTestingErrors() {
     return testingErrorList;
+  }
+
+  @Override
+  public double getPercentageOfCompletedTraining() {
+    return percantageOfCompletedTraining;
   }
 }

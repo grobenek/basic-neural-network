@@ -42,8 +42,7 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JPanel chartJPanel;
   private List<Double> trainingErrors;
   private List<Double> testingErrors;
-  private NetworkConfiguration neuralNetworkConfiguraion;
-  ;
+  private NetworkConfiguration neuralNetworkConfiguration;
 
   public MainWindow(IController controller) {
     this.controller = controller;
@@ -116,13 +115,22 @@ public class MainWindow extends JFrame implements IMainWindow {
         ((INeuralNetworkObservable) observable).getNeuralNetworkConfiguration();
 
     if (neuralNetworkConfiguration.isPresent()
-        && neuralNetworkConfiguration.get() != this.neuralNetworkConfiguraion) {
-      neuralNetworkConfiguraion = neuralNetworkConfiguration.get();
+        && neuralNetworkConfiguration.get() != this.neuralNetworkConfiguration) {
+      this.neuralNetworkConfiguration = neuralNetworkConfiguration.get();
       updateNeuralNetworkInformation();
     }
 
     writeErrorsToTerminal();
+    updateProgressBar(((INeuralNetworkObservable) observable).getPercentageOfCompletedTraining());
     redrawChart();
+  }
+
+  private void updateProgressBar(double percentageOfCompletedTraining) {
+    SwingUtilities.invokeLater(
+        () -> {
+          progressBar.setValue((int) percentageOfCompletedTraining);
+          progressBar.repaint();
+        });
   }
 
   private void writeErrorsToTerminal() {
@@ -138,7 +146,11 @@ public class MainWindow extends JFrame implements IMainWindow {
           .append(System.lineSeparator());
     }
 
-    terminalTextArea.setText(sb.toString());
+    SwingUtilities.invokeLater(
+        () -> {
+          terminalTextArea.setText(sb.toString());
+          scrollTerminalToBottom();
+        });
   }
 
   private void redrawChart() {
@@ -160,7 +172,7 @@ public class MainWindow extends JFrame implements IMainWindow {
 
   private void updateNeuralNetworkInformation() {
     networkInformationTextPane.setText(
-        "Neural network information:\n" + neuralNetworkConfiguraion.toString());
+        "Neural network information:\n" + neuralNetworkConfiguration.toString());
   }
 
   @Override
@@ -219,13 +231,7 @@ public class MainWindow extends JFrame implements IMainWindow {
           protected void done() {
             try {
               get();
-              progressBar.setIndeterminate(false);
-              progressBar.setVisible(false);
-              progressBar.repaint();
             } catch (InterruptedException | ExecutionException e) {
-              progressBar.setIndeterminate(false);
-              progressBar.setVisible(false);
-              progressBar.repaint();
               showErrorMessage(e.getLocalizedMessage());
             }
           }
@@ -275,10 +281,7 @@ public class MainWindow extends JFrame implements IMainWindow {
                               + " : "
                               + Arrays.toString(result)
                               + "\n"));
-
-              // scroll to bottom
-              JScrollBar verticalScrollBar = terminalScrollPane.getVerticalScrollBar();
-              verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+              scrollTerminalToBottom();
             } catch (InterruptedException | ExecutionException e) {
               showErrorMessage(e.getLocalizedMessage());
             }
@@ -286,6 +289,11 @@ public class MainWindow extends JFrame implements IMainWindow {
         };
 
     worker.execute();
+  }
+
+  private void scrollTerminalToBottom() {
+    JScrollBar verticalScrollBar = terminalScrollPane.getVerticalScrollBar();
+    verticalScrollBar.setValue(verticalScrollBar.getMaximum());
   }
 
   @Override

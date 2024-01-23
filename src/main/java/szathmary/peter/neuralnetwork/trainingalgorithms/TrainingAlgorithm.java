@@ -14,6 +14,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   private final List<IObserver> observerList = new ArrayList<>();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private double percentageOfCompletedEpochs;
 
   public TrainingAlgorithm(double learningRate) {
     this.learningRate = learningRate;
@@ -88,10 +89,20 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
               + errorFunction.getClass().getSimpleName()
               + " error = "
               + calculatedTrainingError);
+
+      // send learning progress after each 10% epochs
+      sendTrainingInfo(numberOfEpochs, epoch);
     }
 
     System.out.println("LOWEST ERROR: " + lowestTrainingError);
     neuralNetwork.setNeurons(bestInputNeurons, bestHiddenLayersNeurons, bestOutputNeurons);
+  }
+
+  private void sendTrainingInfo(int numberOfEpochs, int epoch) {
+    if (epoch % (numberOfEpochs / 10) == 0) {
+      percentageOfCompletedEpochs = ((double) epoch / numberOfEpochs) * 100;
+      sendNotifications();
+    }
   }
 
   private void trainOnSelectedData(
@@ -131,5 +142,10 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   @Override
   public List<Double> getTestingErrors() {
     return testingErrorList;
+  }
+
+  @Override
+  public double getPercentageOfCompletedTraining() {
+    return percentageOfCompletedEpochs;
   }
 }

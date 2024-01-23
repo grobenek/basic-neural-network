@@ -1,6 +1,5 @@
 package szathmary.peter.neuralnetwork.trainingalgorithms;
 
-import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.Layer;
 import szathmary.peter.neuralnetwork.network.NeuralNetwork;
 import szathmary.peter.neuralnetwork.network.Neuron;
@@ -18,6 +17,10 @@ public class BackPropagation extends TrainingAlgorithm {
 
   @Override
   protected void backPropagate(NeuralNetwork neuralNetwork, double error) {
+    if (neuralNetwork == null) {
+      throw new IllegalArgumentException("Cannot use back-propagation on null neuralNetwork!");
+    }
+
     if (neuralNetwork.getNumberOfLayers() != 3) {
       throw new IllegalStateException(
           "Back propagation algorithm not implemented for neural neuralNetwork with more than 3 layers!");
@@ -42,7 +45,7 @@ public class BackPropagation extends TrainingAlgorithm {
     }
   }
 
-    private void calculateWeightsForBottomLayer(NeuralNetwork neuralNetwork, double error) {
+  private void calculateWeightsForBottomLayer(NeuralNetwork neuralNetwork, double error) {
     Layer hiddenLayer = neuralNetwork.getHiddenLayer(0);
     Layer outputLayer = neuralNetwork.getOutputLayer();
     Neuron outputNeuron = outputLayer.getNeuron(0);
@@ -61,5 +64,4 @@ public class BackPropagation extends TrainingAlgorithm {
       }
     }
   }
-
 }

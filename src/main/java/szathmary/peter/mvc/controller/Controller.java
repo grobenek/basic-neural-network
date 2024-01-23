@@ -21,6 +21,7 @@ public class Controller implements IController {
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private double percentageOfCompletedTraining;
 
   public Controller(IModel model) {
     this.model = model;
@@ -93,6 +94,7 @@ public class Controller implements IController {
 
     trainingErrorList = networkObservable.getTrainingErrors();
     testingErrorList = networkObservable.getTestingErrors();
+    percentageOfCompletedTraining = networkObservable.getPercentageOfCompletedTraining();
     currentNeuralNetworkConfiguration = networkObservable.getNeuralNetworkConfiguration();
 
     sendNotifications();
@@ -128,5 +130,10 @@ public class Controller implements IController {
   @Override
   public List<Double> getTestingErrors() {
     return testingErrorList;
+  }
+
+  @Override
+  public double getPercentageOfCompletedTraining() {
+    return percentageOfCompletedTraining;
   }
 }
