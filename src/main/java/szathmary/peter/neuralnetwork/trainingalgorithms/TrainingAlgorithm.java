@@ -44,7 +44,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
     testingErrorList = new ArrayList<>(numberOfEpochs);
     double lowestTrainingError = Double.MAX_VALUE;
 
-    for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
+    for (int epoch = 1; epoch != numberOfEpochs; epoch++) {
       double[][] outputsAfterTraining = new double[inputs.length][inputs[0].length];
       double[][] outputsAfterTesting = new double[testingOutputs.length][testingInputs[0].length];
 
