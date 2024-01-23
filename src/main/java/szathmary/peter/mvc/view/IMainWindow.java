@@ -16,13 +16,19 @@ public interface IMainWindow extends IObserver {
 
   void trainNetwork(int numberOfEpochs);
 
-  void testNetwork();
-
-  void loadData(String filePath, int numberIfInputColumns, int numberOfOutputColumns, boolean hasHeader, String delimiter);
+  void loadData(
+      String filePath,
+      int numberIfInputColumns,
+      int numberOfOutputColumns,
+      boolean hasHeader,
+      String delimiter,
+      double trainTestSplitRatio);
 
   void predict(double[] inputs);
+
   void setTrainingAlgorithm(double learningRate);
+
   void showErrorMessage(String message);
 
-    void setErrorFunction(Class<IErrorFunction> selectedItem);
+  void setErrorFunction(Class<IErrorFunction> selectedItem);
 }

@@ -12,12 +12,15 @@ import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 import szathmary.peter.neuralnetwork.trainingalgorithms.BackPropagation;
+import szathmary.peter.neuralnetwork.util.DataUtils;
+import szathmary.peter.neuralnetwork.util.TrainTestSplit;
 
 public class Controller implements IController {
   private final IModel model;
   private final List<IObserver> observerList = new ArrayList<>();
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
+  private List<Double> testingErrorList = Collections.emptyList();
 
   public Controller(IModel model) {
     this.model = model;
@@ -48,9 +51,7 @@ public class Controller implements IController {
 
   @Override
   public void trainNetwork(
-      IErrorFunction errorFunction,
-      int numberOfEpochs,
-      double minErrorTreshold) {
+      IErrorFunction errorFunction, int numberOfEpochs, double minErrorTreshold) {
     model.trainNetwork(errorFunction, numberOfEpochs, minErrorTreshold);
   }
 
@@ -71,8 +72,12 @@ public class Controller implements IController {
   }
 
   @Override
-  public void setTrainingData(double[][] inputs, double[][] outputs) {
-    model.setTrainingData(inputs, outputs);
+  public void setData(double[][] inputs, double[][] outputs, double trainTestSplitRatio) {
+    TrainTestSplit splittedData =
+        DataUtils.splitDataToTrainAndTest(inputs, outputs, trainTestSplitRatio);
+
+    model.setTrainingData(splittedData.trainInputs(), splittedData.trainOutputs());
+    model.setTestingData(splittedData.testInputs(), splittedData.testOutputs());
   }
 
   @Override
@@ -86,7 +91,8 @@ public class Controller implements IController {
       return;
     }
 
-    trainingErrorList = networkObservable.getErrors();
+    trainingErrorList = networkObservable.getTrainingErrors();
+    testingErrorList = networkObservable.getTestingErrors();
     currentNeuralNetworkConfiguration = networkObservable.getNeuralNetworkConfiguration();
 
     sendNotifications();
@@ -115,7 +121,12 @@ public class Controller implements IController {
   }
 
   @Override
-  public List<Double> getErrors() {
+  public List<Double> getTrainingErrors() {
     return trainingErrorList;
+  }
+
+  @Override
+  public List<Double> getTestingErrors() {
+    return testingErrorList;
   }
 }

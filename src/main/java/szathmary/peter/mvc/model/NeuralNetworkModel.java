@@ -18,8 +18,11 @@ public class NeuralNetworkModel implements IModel {
   private NeuralNetwork neuralNetwork;
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
+  private List<Double> testingErrorList = Collections.emptyList();
   private double[][] trainingInputs;
   private double[][] trainingOutputs;
+  private double[][] testingInputs;
+  private double[][] testingOutputs;
 
   public NeuralNetworkModel() {}
 
@@ -58,9 +61,11 @@ public class NeuralNetworkModel implements IModel {
         errorFunction,
         trainingInputs,
         trainingOutputs,
-        numberOfEpochs
-    );
-    trainingErrorList = trainingAlgorithm.getErrors();
+        testingInputs,
+        testingOutputs,
+        numberOfEpochs);
+    trainingErrorList = trainingAlgorithm.getTrainingErrors();
+    testingErrorList = trainingAlgorithm.getTestingErrors();
     sendNotifications();
   }
 
@@ -100,12 +105,19 @@ public class NeuralNetworkModel implements IModel {
   }
 
   @Override
+  public void setTestingData(double[][] inputs, double[][] outputs) {
+    testingInputs = inputs;
+    testingOutputs = outputs;
+  }
+
+  @Override
   public void update(IObservable observable) {
     if (!(observable instanceof ITraningAlgorithmObservable)) {
       return;
     }
 
-    trainingErrorList = ((ITraningAlgorithmObservable) observable).getErrors();
+    trainingErrorList = ((ITraningAlgorithmObservable) observable).getTrainingErrors();
+    testingErrorList = ((ITraningAlgorithmObservable) observable).getTestingErrors();
   }
 
   @Override
@@ -131,7 +143,12 @@ public class NeuralNetworkModel implements IModel {
   }
 
   @Override
-  public List<Double> getErrors() {
+  public List<Double> getTrainingErrors() {
     return trainingErrorList;
+  }
+
+  @Override
+  public List<Double> getTestingErrors() {
+    return testingErrorList;
   }
 }

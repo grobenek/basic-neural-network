@@ -15,10 +15,7 @@ public interface IController extends IObserver, INeuralNetworkObservable {
       int numberOfOutputNeurons,
       ActivationFunction outputLayerActivationFunction);
 
-  void trainNetwork(
-      IErrorFunction errorFunction,
-      int numberOfEpochs,
-      double minErrorTreshold);
+  void trainNetwork(IErrorFunction errorFunction, int numberOfEpochs, double minErrorTreshold);
 
   void testNetwork(IErrorFunction errorFunction, double[][] inputs, double[][] expectedOutputs);
 
@@ -26,6 +23,7 @@ public interface IController extends IObserver, INeuralNetworkObservable {
 
   int getNumberOfInputs();
 
-  void setTrainingData(double[][] inputs, double[][] outputs);
+  void setData(double[][] inputs, double[][] outputs, double trainTestSplitRatio);
+
   void setTrainingAlgorithm(double learningRate);
 }

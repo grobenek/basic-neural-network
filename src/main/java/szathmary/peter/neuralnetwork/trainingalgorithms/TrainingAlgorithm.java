@@ -12,7 +12,8 @@ import szathmary.peter.neuralnetwork.network.Neuron;
 public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   protected final double learningRate;
   private final List<IObserver> observerList = new ArrayList<>();
-  private List<Double> errorList = Collections.emptyList();
+  private List<Double> trainingErrorList = Collections.emptyList();
+  private List<Double> testingErrorList = Collections.emptyList();
 
   public TrainingAlgorithm(double learningRate) {
     this.learningRate = learningRate;
@@ -23,9 +24,9 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       IErrorFunction errorFunction,
       double[][] inputs,
       double[][] expectedOutputs,
+      double[][] testingInputs,
+      double[][] testingOutputs,
       int numberOfEpochs) {
-
-    // TODO zapamatat si najlepsie vahy a tie pouzivat
 
     if (inputs.length != expectedOutputs.length) {
       throw new IllegalArgumentException(
@@ -34,16 +35,19 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
               inputs.length, expectedOutputs.length));
     }
 
-    List<Neuron> inputNeurons = neuralNetwork.getClonedInputNeurons();
-    List<List<Neuron>> hiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
-    List<Neuron> outputNeurons = neuralNetwork.getClonedOutputNeuronList();
+    List<Neuron> bestInputNeurons = neuralNetwork.getClonedInputNeurons();
+    List<List<Neuron>> bestHiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
+    List<Neuron> bestOutputNeurons = neuralNetwork.getClonedOutputNeuronList();
 
-    errorList = new ArrayList<>(numberOfEpochs);
-    double lowestError = Double.MAX_VALUE;
+    trainingErrorList = new ArrayList<>(numberOfEpochs);
+    testingErrorList = new ArrayList<>(numberOfEpochs);
+    double lowestTrainingError = Double.MAX_VALUE;
 
     for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
       double[][] outputsAfterTraining = new double[inputs.length][inputs[0].length];
+      double[][] outputsAfterTesting = new double[testingOutputs.length][testingInputs[0].length];
 
+      // train data
       for (int i = 0; i < inputs.length; i++) {
         double[] input = inputs[i];
         double[] expectedOutput = expectedOutputs[i];
@@ -53,28 +57,41 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
         outputsAfterTraining[i] = neuralNetwork.getOutput();
       }
 
-      double calculatedError = errorFunction.calculateError(outputsAfterTraining, expectedOutputs);
+      // test data
+      for (int i = 0; i < testingInputs.length; i++) {
+        double[] input = testingInputs[i];
 
-      if (calculatedError < lowestError) {
-        lowestError = calculatedError;
+        neuralNetwork.processInput(input);
+        outputsAfterTesting[i] = neuralNetwork.getOutput();
+      }
 
-        inputNeurons = neuralNetwork.getClonedInputNeurons();
-        hiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
+      double calculatedTrainingError =
+          errorFunction.calculateError(outputsAfterTraining, expectedOutputs);
+      double calculatedTestingError =
+          errorFunction.calculateError(outputsAfterTesting, testingOutputs);
+
+      // remembering best weights
+      if (calculatedTrainingError < lowestTrainingError) {
+        lowestTrainingError = calculatedTrainingError;
+
+        bestInputNeurons = neuralNetwork.getClonedInputNeurons();
+        bestHiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
         neuralNetwork.getClonedOutputNeuronList();
       }
 
-      errorList.add(calculatedError);
+      trainingErrorList.add(calculatedTrainingError);
+      testingErrorList.add(calculatedTestingError);
       System.out.println(
           "Epoch "
               + epoch
               + " : "
               + errorFunction.getClass().getSimpleName()
               + " error = "
-              + calculatedError);
+              + calculatedTrainingError);
     }
 
-    System.out.println("LOWEST ERROR: " + lowestError);
-    neuralNetwork.setNeurons(inputNeurons, hiddenLayersNeurons, outputNeurons);
+    System.out.println("LOWEST ERROR: " + lowestTrainingError);
+    neuralNetwork.setNeurons(bestInputNeurons, bestHiddenLayersNeurons, bestOutputNeurons);
   }
 
   private void trainOnSelectedData(
@@ -107,7 +124,12 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   }
 
   @Override
-  public List<Double> getErrors() {
-    return errorList;
+  public List<Double> getTrainingErrors() {
+    return trainingErrorList;
+  }
+
+  @Override
+  public List<Double> getTestingErrors() {
+    return testingErrorList;
   }
 }

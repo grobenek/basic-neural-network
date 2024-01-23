@@ -16,6 +16,7 @@ public class ChooseDataDialog extends JDialog {
   private JTextField numberOfOutputColumnsTextField;
   private JCheckBox hasHeaderCheckBox;
   private JTextField delimiterTextField;
+  private JTextField trainTestTextField;
 
   public ChooseDataDialog(IMainWindow mainWindow) {
     this.mainWindow = mainWindow;
@@ -60,7 +61,10 @@ public class ChooseDataDialog extends JDialog {
     mainWindow.loadData(
         fileChooser.getSelectedFile().getPath(),
         Integer.parseInt(numberOfInputsTextField.getText()),
-        Integer.parseInt(numberOfOutputColumnsTextField.getText()), hasHeaderCheckBox.isSelected(), delimiterTextField.getText());
+        Integer.parseInt(numberOfOutputColumnsTextField.getText()),
+        hasHeaderCheckBox.isSelected(),
+        delimiterTextField.getText(),
+        Double.parseDouble(trainTestTextField.getText()));
 
     dispose();
   }
