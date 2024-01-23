@@ -31,7 +31,6 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JPanel mainPanel;
   private ChartPanel chartPanel;
   private JButton trainNetworkButton;
-  private JButton testNetworkButton;
   private JButton chooseDataButton;
   private JTextArea terminalTextArea;
   private JButton predictButton;
@@ -51,6 +50,7 @@ public class MainWindow extends JFrame implements IMainWindow {
     progressBar.setVisible(false);
 
     this.trainingErrors = new ArrayList<>();
+    this.testingErrors = new ArrayList<>();
 
     setContentPane(mainPanel);
     setTitle("Simple neural network");
@@ -71,8 +71,7 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     createNeuralNetworkButton.addActionListener(
         actionEvent -> {
-          terminalTextArea.setText("");
-          dataset.removeAllSeries();
+          SwingUtilities.invokeLater(this::resetGui);
 
           InitializeNeuralNetworkDialog initializeNeuralNetworkDialog =
               new InitializeNeuralNetworkDialog(this);
@@ -131,6 +130,13 @@ public class MainWindow extends JFrame implements IMainWindow {
           progressBar.setValue((int) percentageOfCompletedTraining);
           progressBar.repaint();
         });
+  }
+
+  private void resetGui() {
+    terminalTextArea.setText("");
+    trainingErrors.clear();
+    testingErrors.clear();
+    redrawChart();
   }
 
   private void writeErrorsToTerminal() {
@@ -231,6 +237,7 @@ public class MainWindow extends JFrame implements IMainWindow {
           protected void done() {
             try {
               get();
+              resetProgressBar();
             } catch (InterruptedException | ExecutionException e) {
               showErrorMessage(e.getLocalizedMessage());
             }
@@ -238,6 +245,14 @@ public class MainWindow extends JFrame implements IMainWindow {
         };
 
     worker.execute();
+  }
+
+  private void resetProgressBar() {
+    SwingUtilities.invokeLater(
+        () -> {
+          progressBar.setValue(0);
+          progressBar.setVisible(false);
+        });
   }
 
   @Override

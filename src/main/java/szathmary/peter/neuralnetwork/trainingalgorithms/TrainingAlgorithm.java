@@ -44,9 +44,17 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
     testingErrorList = new ArrayList<>(numberOfEpochs);
     double lowestTrainingError = Double.MAX_VALUE;
 
-    for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
+    for (int epoch = 1; epoch <= numberOfEpochs; epoch++) {
       double[][] outputsAfterTraining = new double[inputs.length][inputs[0].length];
       double[][] outputsAfterTesting = new double[testingOutputs.length][testingInputs[0].length];
+
+      // test data
+      for (int i = 0; i < testingInputs.length; i++) {
+        double[] input = testingInputs[i];
+
+        neuralNetwork.processInput(input);
+        outputsAfterTesting[i] = neuralNetwork.getOutput();
+      }
 
       // train data
       for (int i = 0; i < inputs.length; i++) {
@@ -56,14 +64,6 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
         trainOnSelectedData(neuralNetwork, input, expectedOutput);
 
         outputsAfterTraining[i] = neuralNetwork.getOutput();
-      }
-
-      // test data
-      for (int i = 0; i < testingInputs.length; i++) {
-        double[] input = testingInputs[i];
-
-        neuralNetwork.processInput(input);
-        outputsAfterTesting[i] = neuralNetwork.getOutput();
       }
 
       double calculatedTrainingError =
@@ -99,7 +99,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   }
 
   private void sendTrainingInfo(int numberOfEpochs, int epoch) {
-    if (epoch % (numberOfEpochs / 10) == 0) {
+    if (epoch % ((double) numberOfEpochs / 10) == 0) {
       percentageOfCompletedEpochs = ((double) epoch / numberOfEpochs) * 100;
       sendNotifications();
     }
