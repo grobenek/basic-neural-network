@@ -12,7 +12,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import szathmary.peter.mvc.controller.IController;
 import szathmary.peter.mvc.model.NetworkConfiguration;
 import szathmary.peter.mvc.observable.INeuralNetworkObservable;
@@ -25,23 +26,24 @@ public class MainWindow extends JFrame implements IMainWindow {
   public static final int NUMBER_OF_X_POINTS = 18;
   private final IController controller;
   private IErrorFunction errorFunction;
-  private DefaultCategoryDataset dataset;
+  private XYSeriesCollection dataset;
   private JFreeChart lineChart;
   private JPanel mainPanel;
   private ChartPanel chartPanel;
   private JButton trainNetworkButton;
   private JButton testNetworkButton;
-  private JButton chooseTrainingDataButton;
+  private JButton chooseDataButton;
   private JTextArea terminalTextArea;
   private JButton predictButton;
-  private JButton chooseTestingDataButton;
   private JButton createNeuralNetworkButton;
   private JTextPane networkInformationTextPane;
   private JScrollPane terminalScrollPane;
   private JProgressBar progressBar;
   private JPanel chartJPanel;
   private List<Double> trainingErrors;
+  private List<Double> testingErrors;
   private NetworkConfiguration neuralNetworkConfiguraion;
+  ;
 
   public MainWindow(IController controller) {
     this.controller = controller;
@@ -71,29 +73,29 @@ public class MainWindow extends JFrame implements IMainWindow {
     createNeuralNetworkButton.addActionListener(
         actionEvent -> {
           terminalTextArea.setText("");
-          dataset.clear();
+          dataset.removeAllSeries();
 
           InitializeNeuralNetworkDialog initializeNeuralNetworkDialog =
               new InitializeNeuralNetworkDialog(this);
         });
 
-    chooseTrainingDataButton.addActionListener(
+    chooseDataButton.addActionListener(
         actionEvent -> {
           ChooseDataDialog chooseDataDialog = new ChooseDataDialog(this);
         });
   }
 
   public void createUIComponents() {
-    dataset = new DefaultCategoryDataset();
+    dataset = new XYSeriesCollection();
 
     lineChart =
-        ChartFactory.createLineChart(
-            "Train errors",
+        ChartFactory.createXYLineChart(
+            "training and testing errors",
             "Epoch",
             "Error",
             dataset,
             PlotOrientation.VERTICAL,
-            false,
+            true,
             false,
             false);
 
@@ -106,7 +108,10 @@ public class MainWindow extends JFrame implements IMainWindow {
       return;
     }
 
-    this.trainingErrors = ((INeuralNetworkObservable) observable).getErrors();
+    trainingErrors = ((INeuralNetworkObservable) observable).getTrainingErrors();
+
+    testingErrors = ((INeuralNetworkObservable) observable).getTestingErrors();
+
     Optional<NetworkConfiguration> neuralNetworkConfiguration =
         ((INeuralNetworkObservable) observable).getNeuralNetworkConfiguration();
 
@@ -137,20 +142,18 @@ public class MainWindow extends JFrame implements IMainWindow {
   }
 
   private void redrawChart() {
-    dataset.clear();
+    dataset.removeAllSeries();
 
-    int interval;
-    if (trainingErrors.size() <= NUMBER_OF_X_POINTS) {
-      interval = 1;
-    } else {
-      interval = trainingErrors.size() / (NUMBER_OF_X_POINTS - 1);
-    }
+    XYSeries trainingErrorsSeries = new XYSeries("Training errors");
+    XYSeries testingErrorsSeries = new XYSeries("Testing errors");
 
     for (int i = 0; i < trainingErrors.size(); i++) {
-      if (i % interval == 0 || i == trainingErrors.size() - 1) {
-        dataset.addValue(trainingErrors.get(i), "Error", String.valueOf(i + 1));
-      }
+      trainingErrorsSeries.add((Double) (i + 1.0), trainingErrors.get(i));
+      testingErrorsSeries.add((Double) (i + 1.0), testingErrors.get(i));
     }
+
+    dataset.addSeries(trainingErrorsSeries);
+    dataset.addSeries(testingErrorsSeries);
 
     lineChart.fireChartChanged();
   }
@@ -232,17 +235,13 @@ public class MainWindow extends JFrame implements IMainWindow {
   }
 
   @Override
-  public void testNetwork() {
-    // TODO treba dat dialog na train info
-  }
-
-  @Override
   public void loadData(
       String filePath,
       int numberIfInputColumns,
       int numberOfOutputColumns,
       boolean hasHeader,
-      String delimiter) {
+      String delimiter,
+      double trainTestSplitRatio) {
     CsvReader csvReader = new CsvReader(filePath);
     csvReader.setHasHeader(hasHeader);
     csvReader.setDelimiter(delimiter);
@@ -251,7 +250,7 @@ public class MainWindow extends JFrame implements IMainWindow {
     double[][] inputs = csvReader.getInputDataArray();
     double[][] outputs = csvReader.getExpectedOutputArray();
 
-    controller.setTrainingData(inputs, outputs);
+    controller.setData(inputs, outputs, trainTestSplitRatio);
   }
 
   @Override
@@ -312,6 +311,11 @@ public class MainWindow extends JFrame implements IMainWindow {
   public void setErrorFunction(Class<IErrorFunction> selectedItem) {
     try {
       errorFunction = selectedItem.getDeclaredConstructor().newInstance();
+      // set error name as y axis label
+      lineChart
+          .getXYPlot()
+          .getRangeAxis()
+          .setLabel(errorFunction != null ? errorFunction.getClass().getSimpleName() : "Error");
     } catch (InstantiationException
         | NoSuchMethodException
         | IllegalAccessException

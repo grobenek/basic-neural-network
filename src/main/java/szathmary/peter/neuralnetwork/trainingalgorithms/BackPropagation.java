@@ -42,27 +42,6 @@ public class BackPropagation extends TrainingAlgorithm {
     }
   }
 
-//  private void calculateWeightsForBottomLayer(NeuralNetwork neuralNetwork) {
-//    Layer hiddenLayer = neuralNetwork.getHiddenLayer(0);
-//    Layer outputLayer = neuralNetwork.getOutputLayer();
-//    Neuron outputNeuron = outputLayer.getNeuron(0);
-//
-//    for (Neuron hiddenNeuron : hiddenLayer.getNeuronList()) {
-//      double outputNeuronWeight =
-//          outputNeuron.getWeights()[hiddenLayer.getNeuronList().indexOf(hiddenNeuron)];
-//      double derivative =
-//          hiddenNeuron.getActivationFunction().applyForDerivation(hiddenNeuron.getWeightedInput());
-//      double errorForHiddenNeuron = outputNeuronWeight * derivative * outputNeuron.getOutput();
-//
-//      for (int i = 0; i < hiddenNeuron.getWeights().length; i++) {
-//        double inputVal = hiddenNeuron.getInputs()[i];
-//        double gradient = -errorForHiddenNeuron * inputVal;
-//        double updatedWeight = hiddenNeuron.getWeights()[i] - learningRate * gradient;
-//        hiddenNeuron.setWeight(updatedWeight, i);
-//      }
-//    }
-//  }
-
     private void calculateWeightsForBottomLayer(NeuralNetwork neuralNetwork, double error) {
     Layer hiddenLayer = neuralNetwork.getHiddenLayer(0);
     Layer outputLayer = neuralNetwork.getOutputLayer();
