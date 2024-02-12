@@ -1,8 +1,11 @@
 package szathmary.peter.neuralnetwork.trainingalgorithms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
+
 import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.mvc.observable.ITraningAlgorithmObservable;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
@@ -10,6 +13,7 @@ import szathmary.peter.neuralnetwork.network.NeuralNetwork;
 import szathmary.peter.neuralnetwork.network.Neuron;
 
 public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
+  private static final int UPDATE_FREQUENCY_PERCENT = 10;
   protected final double learningRate;
   private final List<IObserver> observerList = new ArrayList<>();
   private List<Double> trainingErrorList = Collections.emptyList();
@@ -99,7 +103,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   }
 
   private void sendTrainingInfo(int numberOfEpochs, int epoch) {
-    if (epoch % ((double) numberOfEpochs / 10) == 0) {
+    if (epoch % ((double) numberOfEpochs / UPDATE_FREQUENCY_PERCENT) == 0) {
       percentageOfCompletedEpochs = ((double) epoch / numberOfEpochs) * 100;
       sendNotifications();
     }
@@ -109,13 +113,15 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       NeuralNetwork neuralNetwork, double[] input, double[] expectedOutput) {
     forwardPropagate(neuralNetwork, input);
 
-    double error = expectedOutput[0] - neuralNetwork.getOutput()[0];
-    backPropagate(neuralNetwork, error);
+    double[] outputs = neuralNetwork.getOutput();
+    double[] errors = IntStream.range(0, expectedOutput.length).mapToDouble(i -> expectedOutput[i] - outputs[i]).toArray();
+
+    backPropagate(neuralNetwork, errors);
   }
 
   protected abstract void forwardPropagate(NeuralNetwork neuralNetwork, double[] input);
 
-  protected abstract void backPropagate(NeuralNetwork neuralNetwork, double error);
+  protected abstract void backPropagate(NeuralNetwork neuralNetwork, double[] error);
 
   @Override
   public void attach(IObserver observer) {

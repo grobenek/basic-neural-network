@@ -23,7 +23,6 @@ import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class MainWindow extends JFrame implements IMainWindow {
-  public static final int NUMBER_OF_X_POINTS = 18;
   private final IController controller;
   private IErrorFunction errorFunction;
   private XYSeriesCollection dataset;

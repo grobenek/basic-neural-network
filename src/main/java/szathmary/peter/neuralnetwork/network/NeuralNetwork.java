@@ -116,4 +116,8 @@ public class NeuralNetwork implements INeuronComponent {
 
     outputLayer.setNeurons(outputNeurons);
   }
+
+  public List<Layer> getHiddenLayers() {
+    return hiddenLayers;
+  }
 }

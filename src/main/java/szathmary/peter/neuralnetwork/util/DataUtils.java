@@ -1,8 +1,11 @@
 package szathmary.peter.neuralnetwork.util;
 
+import szathmary.peter.Main;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public class DataUtils {
@@ -27,7 +30,7 @@ public class DataUtils {
 
     List<Integer> indices = new ArrayList<>(totalSize);
     IntStream.range(0, totalSize).forEach(indices::add);
-    Collections.shuffle(indices);
+    Collections.shuffle(indices, Main.random);
 
     for (int i = 0; i < trainSize; i++) {
       trainInputs[i] = inputs[indices.get(i)];
