@@ -1,11 +1,8 @@
 package szathmary.peter.neuralnetwork.trainingalgorithms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
-
 import szathmary.peter.mvc.observable.IObserver;
 import szathmary.peter.mvc.observable.ITraningAlgorithmObservable;
 import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
@@ -113,10 +110,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       NeuralNetwork neuralNetwork, double[] input, double[] expectedOutput) {
     forwardPropagate(neuralNetwork, input);
 
-    double[] outputs = neuralNetwork.getOutput();
-    double[] errors = IntStream.range(0, expectedOutput.length).mapToDouble(i -> expectedOutput[i] - outputs[i]).toArray();
-
-    backPropagate(neuralNetwork, errors);
+    backPropagate(neuralNetwork, expectedOutput);
   }
 
   protected abstract void forwardPropagate(NeuralNetwork neuralNetwork, double[] input);

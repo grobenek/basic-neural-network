@@ -1,13 +1,25 @@
 package szathmary.peter.neuralnetwork.trainingalgorithms;
 
-import szathmary.peter.neuralnetwork.network.Layer;
-import szathmary.peter.neuralnetwork.network.NeuralNetwork;
-import szathmary.peter.neuralnetwork.network.Neuron;
+import szathmary.peter.neuralnetwork.network.*;
 
 public class BackPropagation extends TrainingAlgorithm {
 
   public BackPropagation(double learningRate) {
     super(learningRate);
+  }
+
+  private static void backPropagateOutputLayer(
+      double[] targetOutputs,
+      double[][] layerErrors,
+      int numberOfHiddenLayersAndOutputLayer,
+      Layer outputLayer) {
+    layerErrors[numberOfHiddenLayersAndOutputLayer - 1] = new double[outputLayer.getNeuronCount()];
+    for (int i = 0; i < outputLayer.getNeuronCount(); i++) {
+      Neuron neuron = outputLayer.getNeuron(i);
+      double output = neuron.getOutput();
+      layerErrors[numberOfHiddenLayersAndOutputLayer - 1][i] =
+          (targetOutputs[i] - output) * neuron.getActivationFunction().applyForDerivation(output);
+    }
   }
 
   @Override
@@ -16,90 +28,59 @@ public class BackPropagation extends TrainingAlgorithm {
   }
 
   @Override
-  protected void backPropagate(NeuralNetwork neuralNetwork, double[] error) {
-    if (neuralNetwork == null) {
-      throw new IllegalArgumentException("Cannot use back-propagation on null neuralNetwork!");
-    }
-
-    if (neuralNetwork.getNumberOfLayers() != 3) {
-      throw new IllegalStateException(
-          "Back propagation algorithm not implemented for neural networks with more than 3 layers!");
-    }
-
-    calculateWeightsForUpperLayer(neuralNetwork, error);
-    calculateWeightsForBottomLayer(neuralNetwork, error);
-  }
-
-  private void calculateWeightsForUpperLayer(NeuralNetwork neuralNetwork, double[] errors) {
+  public void backPropagate(NeuralNetwork neuralNetwork, double[] targetOutputs) {
+    int numberOfHiddenLayersAndOutputLayer = neuralNetwork.getNumberOfHiddenLayers() + 1;
+    double[][] layerErrors = new double[numberOfHiddenLayersAndOutputLayer][];
     Layer outputLayer = neuralNetwork.getOutputLayer();
-    Layer lastHiddenLayer =
-        neuralNetwork.getHiddenLayer(neuralNetwork.getNumberOfHiddenLayers() - 1);
 
-    for (int i = 0; i < outputLayer.getNeuronCount(); i++) {
-      Neuron outputNeuron = outputLayer.getNeuron(i);
+    // Compute errors for output layer
+    backPropagateOutputLayer(
+        targetOutputs, layerErrors, numberOfHiddenLayersAndOutputLayer, outputLayer);
 
-      for (int j = 0; j < outputNeuron.getWeights().length; j++) {
-        double derivative =
-            outputNeuron
-                .getActivationFunction()
-                .applyForDerivation(outputNeuron.getWeightedInput());
-        double gradient = -errors[i] * derivative * lastHiddenLayer.getOutputs()[j];
-        double updatedWeight = outputNeuron.getWeights()[j] - learningRate * gradient;
-        outputNeuron.setWeight(updatedWeight, j);
+    // Backpropagate errors through hidden layers
+    for (int layerIndex = numberOfHiddenLayersAndOutputLayer - 2;
+        layerIndex >= 0;
+        layerIndex--) { // Exclude output layer
+      Layer currentLayer = neuralNetwork.getHiddenLayer(layerIndex);
+      int nextLayerIndex = layerIndex + 1;
+      Layer nextLayer;
+      // next layer is output layer
+      if (nextLayerIndex == numberOfHiddenLayersAndOutputLayer - 1) {
+        nextLayer = outputLayer;
+      } else {
+        nextLayer = neuralNetwork.getHiddenLayer(layerIndex + 1);
       }
+      layerErrors[layerIndex] = new double[currentLayer.getNeuronCount()];
+
+      backPropagateLayer(currentLayer, nextLayer, layerErrors, layerIndex);
     }
   }
 
-  //  private void calculateWeightsForBottomLayer(NeuralNetwork neuralNetwork, double[] errors) {
-  //    Layer firstHiddenLayer = neuralNetwork.getHiddenLayer(0);
-  //    Layer outputLayer = neuralNetwork.getOutputLayer();
-  //
-  //    for (Neuron hiddenNeuron : firstHiddenLayer.getNeuronList()) {
-  //      double totalError = 0;
-  //      for (int i = 0; i < outputLayer.getNeuronCount(); i++) {
-  //        Neuron outputNeuron = outputLayer.getNeuron(i);
-  //        double outputNeuronWeight =
-  // outputNeuron.getWeights()[firstHiddenLayer.getNeuronList().indexOf(hiddenNeuron)];
-  //        double derivative =
-  // hiddenNeuron.getActivationFunction().applyForDerivation(hiddenNeuron.getWeightedInput());
-  //        totalError += outputNeuronWeight * derivative * errors[i];
-  //      }
-  //      for (int j = 0; j < hiddenNeuron.getWeights().length; j++) {
-  //        double inputVal = hiddenNeuron.getInputs()[j];
-  //        double gradient = -totalError * inputVal;
-  //        double updatedWeight = hiddenNeuron.getWeights()[j] - learningRate * gradient;
-  //        hiddenNeuron.setWeight(updatedWeight, j);
-  //      }
-  //    }
-  //  }
-
-  private void calculateWeightsForBottomLayer(NeuralNetwork neuralNetwork, double[] errors) {
-    Layer firstHiddenLayer = neuralNetwork.getHiddenLayer(0);
-    Layer outputLayer = neuralNetwork.getOutputLayer();
-
-    for (int hiddenIndex = 0; hiddenIndex < firstHiddenLayer.getNeuronCount(); hiddenIndex++) {
-      Neuron hiddenNeuron = firstHiddenLayer.getNeuron(hiddenIndex);
-      double totalError = 0;
-
-      for (int outputIndex = 0; outputIndex < outputLayer.getNeuronCount(); outputIndex++) {
-        Neuron outputNeuron = outputLayer.getNeuron(outputIndex);
-        double outputNeuronWeight = outputNeuron.getWeights()[hiddenIndex];
-        double derivative =
-            outputNeuron
-                .getActivationFunction()
-                .applyForDerivation(outputNeuron.getWeightedInput());
-        totalError += outputNeuronWeight * derivative * errors[outputIndex];
+  private void backPropagateLayer(
+      Layer currentLayer, Layer nextLayer, double[][] layerErrors, int layerIndex) {
+    for (int neuronIndex = 0; neuronIndex < currentLayer.getNeuronCount(); neuronIndex++) {
+      Neuron neuron = currentLayer.getNeuron(neuronIndex);
+      double weightedErrorSum = 0.0;
+      for (int nextLayerNeuronIndex = 0;
+          nextLayerNeuronIndex < nextLayer.getNeuronCount();
+          nextLayerNeuronIndex++) {
+        weightedErrorSum +=
+            nextLayer.getNeuron(nextLayerNeuronIndex).getWeights()[neuronIndex]
+                * layerErrors[layerIndex + 1][nextLayerNeuronIndex];
       }
+      layerErrors[layerIndex][neuronIndex] =
+          weightedErrorSum * neuron.getActivationFunction().applyForDerivation(neuron.getOutput());
 
-      double hiddenDerivative =
-          hiddenNeuron.getActivationFunction().applyForDerivation(hiddenNeuron.getWeightedInput());
+      // Update weights for the current neuron
+      updateWeights(neuron, neuronIndex, layerErrors[layerIndex]);
+    }
+  }
 
-      for (int inputIndex = 0; inputIndex < hiddenNeuron.getWeights().length; inputIndex++) {
-        double inputVal = hiddenNeuron.getInputs()[inputIndex];
-        double gradient = -totalError * hiddenDerivative * inputVal;
-        double updatedWeight = hiddenNeuron.getWeights()[inputIndex] - learningRate * gradient;
-        hiddenNeuron.setWeight(updatedWeight, inputIndex);
-      }
+  private void updateWeights(Neuron neuron, int neuronIndex, double[] layerErrors) {
+    for (int weightIndex = 0; weightIndex < neuron.getWeights().length; weightIndex++) {
+      double deltaWeight =
+          learningRate * layerErrors[neuronIndex] * neuron.getInputs()[weightIndex];
+      neuron.setWeight(neuron.getWeights()[weightIndex] + deltaWeight, weightIndex);
     }
   }
 }
