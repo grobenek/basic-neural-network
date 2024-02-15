@@ -40,6 +40,7 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JPanel chartJPanel;
   private List<Double> trainingErrors;
   private List<Double> testingErrors;
+  private int bestWeightsEpoch;
   private NetworkConfiguration neuralNetworkConfiguration;
 
   public MainWindow(IController controller) {
@@ -109,6 +110,8 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     testingErrors = ((INeuralNetworkObservable) observable).getTestingErrors();
 
+    bestWeightsEpoch = ((INeuralNetworkObservable) observable).getBestWeightsEpoch();
+
     Optional<NetworkConfiguration> neuralNetworkConfiguration =
         ((INeuralNetworkObservable) observable).getNeuralNetworkConfiguration();
 
@@ -167,6 +170,17 @@ public class MainWindow extends JFrame implements IMainWindow {
     for (int i = 0; i < trainingErrors.size(); i++) {
       trainingErrorsSeries.add((Double) (i + 1.0), trainingErrors.get(i));
       testingErrorsSeries.add((Double) (i + 1.0), testingErrors.get(i));
+    }
+
+    if (bestWeightsEpoch >= 1 && bestWeightsEpoch <= trainingErrors.size()) {
+        XYSeries bestWeightsLine = new XYSeries("Best Weights Epoch");
+        bestWeightsLine.add(bestWeightsEpoch, 0); // Add a point at the best weights epoch
+        bestWeightsLine.add(bestWeightsEpoch, trainingErrorsSeries.getMaxY()); // Add a point at the maximum error to cover the entire chart height
+
+        dataset.addSeries(bestWeightsLine);
+        // Customize the appearance of the line
+        lineChart.getXYPlot().getRenderer().setSeriesStroke(dataset.getSeriesCount() - 1, new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{5}, 0));
+        lineChart.getXYPlot().getRenderer().setSeriesPaint(dataset.getSeriesCount() - 1, Color.RED);
     }
 
     dataset.addSeries(trainingErrorsSeries);

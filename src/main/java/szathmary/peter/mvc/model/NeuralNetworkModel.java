@@ -19,6 +19,7 @@ public class NeuralNetworkModel implements IModel {
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private int bestWeightsEpoch;
   private double[][] trainingInputs;
   private double[][] trainingOutputs;
   private double[][] testingInputs;
@@ -119,6 +120,7 @@ public class NeuralNetworkModel implements IModel {
     trainingErrorList = ((ITraningAlgorithmObservable) observable).getTrainingErrors();
     testingErrorList = ((ITraningAlgorithmObservable) observable).getTestingErrors();
     percantageOfCompletedTraining = ((ITraningAlgorithmObservable) observable).getPercentageOfCompletedTraining();
+    bestWeightsEpoch = ((ITraningAlgorithmObservable) observable).getBestWeightsEpoch();
 
     sendNotifications();
   }
@@ -158,5 +160,10 @@ public class NeuralNetworkModel implements IModel {
   @Override
   public double getPercentageOfCompletedTraining() {
     return percantageOfCompletedTraining;
+  }
+
+  @Override
+  public int getBestWeightsEpoch() {
+    return bestWeightsEpoch;
   }
 }

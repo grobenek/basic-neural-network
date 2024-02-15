@@ -8,7 +8,7 @@ import szathmary.peter.mvc.model.NeuralNetworkModel;
 import szathmary.peter.mvc.view.MainWindow;
 
 public class Main {
-  public static Random random = new Random(1);
+  public static final Random random = new Random();
 
   public static void main(String[] args) {
     IModel model = new NeuralNetworkModel();

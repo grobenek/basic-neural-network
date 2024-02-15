@@ -18,6 +18,7 @@ public class Controller implements IController {
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private int bestWeightsEpoch;
   private double percentageOfCompletedTraining;
 
   public Controller(IModel model) {
@@ -99,6 +100,7 @@ public class Controller implements IController {
     testingErrorList = networkObservable.getTestingErrors();
     percentageOfCompletedTraining = networkObservable.getPercentageOfCompletedTraining();
     currentNeuralNetworkConfiguration = networkObservable.getNeuralNetworkConfiguration();
+    bestWeightsEpoch = networkObservable.getBestWeightsEpoch();
 
     sendNotifications();
   }
@@ -138,5 +140,10 @@ public class Controller implements IController {
   @Override
   public double getPercentageOfCompletedTraining() {
     return percentageOfCompletedTraining;
+  }
+
+  @Override
+  public int getBestWeightsEpoch() {
+    return bestWeightsEpoch;
   }
 }

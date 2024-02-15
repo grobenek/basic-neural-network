@@ -29,27 +29,25 @@ public class BackPropagation extends TrainingAlgorithm {
 
   @Override
   public void backPropagate(NeuralNetwork neuralNetwork, double[] targetOutputs) {
-    int numberOfHiddenLayersAndOutputLayer = neuralNetwork.getNumberOfHiddenLayers() + 1;
-    double[][] layerErrors = new double[numberOfHiddenLayersAndOutputLayer][];
+    int numberOfLayersToPropagateThrough = neuralNetwork.getNumberOfHiddenLayers() + 1;
+    double[][] layerErrors = new double[numberOfLayersToPropagateThrough][];
     Layer outputLayer = neuralNetwork.getOutputLayer();
 
     // Compute errors for output layer
     backPropagateOutputLayer(
-        targetOutputs, layerErrors, numberOfHiddenLayersAndOutputLayer, outputLayer);
+        targetOutputs, layerErrors, numberOfLayersToPropagateThrough, outputLayer);
 
     // Backpropagate errors through hidden layers
-    for (int layerIndex = numberOfHiddenLayersAndOutputLayer - 2;
+    for (int layerIndex = numberOfLayersToPropagateThrough - 2;
         layerIndex >= 0;
         layerIndex--) { // Exclude output layer
       Layer currentLayer = neuralNetwork.getHiddenLayer(layerIndex);
       int nextLayerIndex = layerIndex + 1;
-      Layer nextLayer;
-      // next layer is output layer
-      if (nextLayerIndex == numberOfHiddenLayersAndOutputLayer - 1) {
-        nextLayer = outputLayer;
-      } else {
-        nextLayer = neuralNetwork.getHiddenLayer(layerIndex + 1);
-      }
+      // if last hidden layer, next layer is output layer
+      Layer nextLayer =
+          nextLayerIndex == numberOfLayersToPropagateThrough - 1
+              ? outputLayer
+              : neuralNetwork.getHiddenLayer(layerIndex + 1);
       layerErrors[layerIndex] = new double[currentLayer.getNeuronCount()];
 
       backPropagateLayer(currentLayer, nextLayer, layerErrors, layerIndex);

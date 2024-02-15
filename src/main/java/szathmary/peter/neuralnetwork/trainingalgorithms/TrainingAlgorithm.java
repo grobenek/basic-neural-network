@@ -15,6 +15,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   private final List<IObserver> observerList = new ArrayList<>();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private int bestWeightsEpoch;
   private double percentageOfCompletedEpochs;
 
   public TrainingAlgorithm(double learningRate) {
@@ -76,6 +77,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       if (calculatedTrainingError < lowestTrainingError) {
         lowestTrainingError = calculatedTrainingError;
 
+        bestWeightsEpoch = epoch;
         bestInputNeurons = neuralNetwork.getClonedInputNeurons();
         bestHiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
         neuralNetwork.getClonedOutputNeuronList();
@@ -147,5 +149,10 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   @Override
   public double getPercentageOfCompletedTraining() {
     return percentageOfCompletedEpochs;
+  }
+
+  @Override
+  public int getBestWeightsEpoch() {
+    return bestWeightsEpoch;
   }
 }
