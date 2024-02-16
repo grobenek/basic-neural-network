@@ -7,9 +7,9 @@ import javax.swing.*;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class InitializeNeuralNetworkDialog extends JDialog {
+  private final IMainWindow mainWindow;
   private Vector<JComboBox<ActivationFunction>> hiddenLayerComboBoxes;
   private Vector<JTextField> hiddenLayerNumberOfNeuronsTextFields;
-  private final IMainWindow mainWindow;
   private JPanel contentPane;
   private JButton buttonOK;
   private JButton buttonCancel;
@@ -105,15 +105,13 @@ public class InitializeNeuralNetworkDialog extends JDialog {
     hiddenLayerComboBoxes = new Vector<>();
     hiddenLayerNumberOfNeuronsTextFields = new Vector<>();
 
-    // create the main configuration panel with GridBagLayout.
     configurationPanel = new JPanel(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();
 
-    // set default constraints.
     gbc.gridwidth = GridBagConstraints.REMAINDER;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     gbc.weightx = 1;
-    gbc.insets = new Insets(5, 5, 5, 5); // Provides some padding between components
+    gbc.insets = new Insets(5, 5, 5, 5);
 
     // input layer components
     configurationPanel.add(new JLabel("Number of neurons in input layer"), gbc);

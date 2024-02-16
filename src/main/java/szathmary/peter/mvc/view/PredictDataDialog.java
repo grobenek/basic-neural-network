@@ -49,7 +49,7 @@ public class PredictDataDialog extends JDialog {
       inputFields.add(textField);
     }
 
-    setSize(400, 200);
+    setSize(400, 50 * numberOfInputs);
     setAutoRequestFocus(true);
     setTitle("Predict data");
     setLocationRelativeTo((Component) mainWindow);
@@ -77,7 +77,7 @@ public class PredictDataDialog extends JDialog {
 
   private void createUIComponents() {
     inputPanel = new JPanel();
-    inputPanel.setLayout(new GridLayout(0, 2)); // Set a layout
+    inputPanel.setLayout(new GridLayout(0, 2));
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
   }

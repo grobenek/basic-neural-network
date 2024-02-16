@@ -61,12 +61,6 @@ public class Controller implements IController {
   }
 
   @Override
-  public void testNetwork(
-      IErrorFunction errorFunction, double[][] inputs, double[][] expectedOutputs) {
-    model.testNetwork(errorFunction, inputs, expectedOutputs);
-  }
-
-  @Override
   public double[] predict(double[] input) {
     return model.predict(input);
   }

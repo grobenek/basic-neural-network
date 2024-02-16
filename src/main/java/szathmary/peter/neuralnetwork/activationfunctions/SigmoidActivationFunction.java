@@ -12,4 +12,3 @@ public class SigmoidActivationFunction implements IActivationFunction {
     return sigmoid * (1 - sigmoid);
   }
 }
-

@@ -71,10 +71,6 @@ public class NeuralNetworkModel implements IModel {
   }
 
   @Override
-  public void testNetwork(
-      IErrorFunction errorFunction, double[][] inputs, double[][] expectedOutputs) {}
-
-  @Override
   public double[] predict(double[] input) {
     neuralNetwork.processInput(input);
     return neuralNetwork.getOutput();
@@ -119,7 +115,8 @@ public class NeuralNetworkModel implements IModel {
 
     trainingErrorList = ((ITraningAlgorithmObservable) observable).getTrainingErrors();
     testingErrorList = ((ITraningAlgorithmObservable) observable).getTestingErrors();
-    percantageOfCompletedTraining = ((ITraningAlgorithmObservable) observable).getPercentageOfCompletedTraining();
+    percantageOfCompletedTraining =
+        ((ITraningAlgorithmObservable) observable).getPercentageOfCompletedTraining();
     bestWeightsEpoch = ((ITraningAlgorithmObservable) observable).getBestWeightsEpoch();
 
     sendNotifications();

@@ -3,15 +3,14 @@ package szathmary.peter.neuralnetwork.network;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.IntStream;
-import szathmary.peter.Main;
 import szathmary.peter.neuralnetwork.activationfunctions.IActivationFunction;
 
 public class Neuron implements INeuronComponent, Cloneable {
+  private static final Random random = new Random();
   private final double[] weights;
   private final IActivationFunction activationFunction;
   private double weightedInput;
   private double output;
-
   private double[] input;
 
   public Neuron(IActivationFunction activationFunction, double[] weights) {
@@ -69,7 +68,6 @@ public class Neuron implements INeuronComponent, Cloneable {
   }
 
   private double[] initializeWeights(int size) {
-    Random random = Main.random;
     double scale = Math.sqrt(1.0 / size);
     return Arrays.stream(new double[size])
         .map(weight -> scale * (2.0 * random.nextDouble() - 1.0))

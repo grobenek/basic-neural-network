@@ -50,14 +50,6 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       double[][] outputsAfterTraining = new double[inputs.length][inputs[0].length];
       double[][] outputsAfterTesting = new double[testingOutputs.length][testingInputs[0].length];
 
-      // test data
-      for (int i = 0; i < testingInputs.length; i++) {
-        double[] input = testingInputs[i];
-
-        neuralNetwork.processInput(input);
-        outputsAfterTesting[i] = neuralNetwork.getOutput();
-      }
-
       // train data
       for (int i = 0; i < inputs.length; i++) {
         double[] input = inputs[i];
@@ -66,6 +58,14 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
         trainOnSelectedData(neuralNetwork, input, expectedOutput);
 
         outputsAfterTraining[i] = neuralNetwork.getOutput();
+      }
+
+      // test data
+      for (int i = 0; i < testingInputs.length; i++) {
+        double[] input = testingInputs[i];
+
+        neuralNetwork.processInput(input);
+        outputsAfterTesting[i] = neuralNetwork.getOutput();
       }
 
       double calculatedTrainingError =
