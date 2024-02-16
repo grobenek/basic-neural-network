@@ -23,7 +23,6 @@ import szathmary.peter.neuralnetwork.errorfunctions.IErrorFunction;
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
 public class MainWindow extends JFrame implements IMainWindow {
-  public static final int NUMBER_OF_X_POINTS = 18;
   private final IController controller;
   private IErrorFunction errorFunction;
   private XYSeriesCollection dataset;
@@ -31,7 +30,6 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JPanel mainPanel;
   private ChartPanel chartPanel;
   private JButton trainNetworkButton;
-  private JButton testNetworkButton;
   private JButton chooseDataButton;
   private JTextArea terminalTextArea;
   private JButton predictButton;
@@ -39,9 +37,10 @@ public class MainWindow extends JFrame implements IMainWindow {
   private JTextPane networkInformationTextPane;
   private JScrollPane terminalScrollPane;
   private JProgressBar progressBar;
-  private JPanel chartJPanel;
+  private JLabel networkTrainingLabel;
   private List<Double> trainingErrors;
   private List<Double> testingErrors;
+  private int bestWeightsEpoch;
   private NetworkConfiguration neuralNetworkConfiguration;
 
   public MainWindow(IController controller) {
@@ -49,8 +48,10 @@ public class MainWindow extends JFrame implements IMainWindow {
     this.controller.attach(this);
 
     progressBar.setVisible(false);
+    networkTrainingLabel.setVisible(false);
 
     this.trainingErrors = new ArrayList<>();
+    this.testingErrors = new ArrayList<>();
 
     setContentPane(mainPanel);
     setTitle("Simple neural network");
@@ -71,8 +72,7 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     createNeuralNetworkButton.addActionListener(
         actionEvent -> {
-          terminalTextArea.setText("");
-          dataset.removeAllSeries();
+          SwingUtilities.invokeLater(this::resetGui);
 
           InitializeNeuralNetworkDialog initializeNeuralNetworkDialog =
               new InitializeNeuralNetworkDialog(this);
@@ -111,6 +111,8 @@ public class MainWindow extends JFrame implements IMainWindow {
 
     testingErrors = ((INeuralNetworkObservable) observable).getTestingErrors();
 
+    bestWeightsEpoch = ((INeuralNetworkObservable) observable).getBestWeightsEpoch();
+
     Optional<NetworkConfiguration> neuralNetworkConfiguration =
         ((INeuralNetworkObservable) observable).getNeuralNetworkConfiguration();
 
@@ -133,13 +135,22 @@ public class MainWindow extends JFrame implements IMainWindow {
         });
   }
 
+  private void resetGui() {
+    trainingErrors.clear();
+    testingErrors.clear();
+    progressBar.setValue(0);
+    progressBar.repaint();
+    terminalTextArea.setText("");
+    redrawChart();
+  }
+
   private void writeErrorsToTerminal() {
     StringBuilder sb = new StringBuilder();
 
     for (int i = 0; i < trainingErrors.size(); i++) {
       sb.append("Epoch ")
           .append(i + 1)
-          .append(" :  ")
+          .append(" : testing  ")
           .append(errorFunction.getClass().getSimpleName())
           .append(" error = ")
           .append(trainingErrors.get(i))
@@ -162,6 +173,24 @@ public class MainWindow extends JFrame implements IMainWindow {
     for (int i = 0; i < trainingErrors.size(); i++) {
       trainingErrorsSeries.add((Double) (i + 1.0), trainingErrors.get(i));
       testingErrorsSeries.add((Double) (i + 1.0), testingErrors.get(i));
+    }
+
+    if (bestWeightsEpoch >= 1 && bestWeightsEpoch <= trainingErrors.size()) {
+      XYSeries bestWeightsLine = new XYSeries("Best Weights Epoch");
+      bestWeightsLine.add(bestWeightsEpoch, 0); // Add a point at the best weights epoch
+      bestWeightsLine.add(bestWeightsEpoch, trainingErrorsSeries.getMaxY());
+
+      dataset.addSeries(bestWeightsLine);
+
+      // set best weights line as dashed
+      lineChart
+          .getXYPlot()
+          .getRenderer()
+          .setSeriesStroke(
+              dataset.getSeriesCount() - 1,
+              new BasicStroke(
+                  1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] {5}, 0));
+      lineChart.getXYPlot().getRenderer().setSeriesPaint(dataset.getSeriesCount() - 1, Color.RED);
     }
 
     dataset.addSeries(trainingErrorsSeries);
@@ -217,6 +246,7 @@ public class MainWindow extends JFrame implements IMainWindow {
   public void trainNetwork(int numberOfEpochs) {
     terminalTextArea.setText("Training network!");
     progressBar.setVisible(true);
+    networkTrainingLabel.setVisible(true);
     progressBar.repaint();
 
     SwingWorker<Void, Void> worker =
@@ -231,13 +261,35 @@ public class MainWindow extends JFrame implements IMainWindow {
           protected void done() {
             try {
               get();
+              changeStateOfButtons(true);
+              resetProgressBar();
             } catch (InterruptedException | ExecutionException e) {
               showErrorMessage(e.getLocalizedMessage());
             }
           }
         };
 
+    changeStateOfButtons(false);
     worker.execute();
+  }
+
+  private void changeStateOfButtons(boolean enable) {
+    SwingUtilities.invokeLater(
+        () -> {
+          chooseDataButton.setEnabled(enable);
+          predictButton.setEnabled(enable);
+          createNeuralNetworkButton.setEnabled(enable);
+          trainNetworkButton.setEnabled(enable);
+        });
+  }
+
+  private void resetProgressBar() {
+    SwingUtilities.invokeLater(
+        () -> {
+          progressBar.setValue(0);
+          progressBar.setVisible(false);
+          networkTrainingLabel.setVisible(false);
+        });
   }
 
   @Override

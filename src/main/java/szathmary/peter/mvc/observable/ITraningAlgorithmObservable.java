@@ -8,4 +8,6 @@ public interface ITraningAlgorithmObservable extends IObservable {
   List<Double> getTestingErrors();
 
   double getPercentageOfCompletedTraining();
+
+  int getBestWeightsEpoch();
 }

@@ -3,9 +3,12 @@ package szathmary.peter.neuralnetwork.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 public class DataUtils {
+  private static final Random random = new Random();
+
   public static TrainTestSplit splitDataToTrainAndTest(
       double[][] inputs, double[][] expectedOutputs, double trainToTestRatio) {
     if (inputs == null || expectedOutputs == null || inputs.length != expectedOutputs.length) {
@@ -27,7 +30,7 @@ public class DataUtils {
 
     List<Integer> indices = new ArrayList<>(totalSize);
     IntStream.range(0, totalSize).forEach(indices::add);
-    Collections.shuffle(indices);
+    Collections.shuffle(indices, random);
 
     for (int i = 0; i < trainSize; i++) {
       trainInputs[i] = inputs[indices.get(i)];

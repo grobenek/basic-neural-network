@@ -10,10 +10,12 @@ import szathmary.peter.neuralnetwork.network.NeuralNetwork;
 import szathmary.peter.neuralnetwork.network.Neuron;
 
 public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
+  private static final int UPDATE_FREQUENCY_PERCENT = 10;
   protected final double learningRate;
   private final List<IObserver> observerList = new ArrayList<>();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private int bestWeightsEpoch;
   private double percentageOfCompletedEpochs;
 
   public TrainingAlgorithm(double learningRate) {
@@ -44,7 +46,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
     testingErrorList = new ArrayList<>(numberOfEpochs);
     double lowestTrainingError = Double.MAX_VALUE;
 
-    for (int epoch = 0; epoch < numberOfEpochs; epoch++) {
+    for (int epoch = 1; epoch <= numberOfEpochs; epoch++) {
       double[][] outputsAfterTraining = new double[inputs.length][inputs[0].length];
       double[][] outputsAfterTesting = new double[testingOutputs.length][testingInputs[0].length];
 
@@ -75,6 +77,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       if (calculatedTrainingError < lowestTrainingError) {
         lowestTrainingError = calculatedTrainingError;
 
+        bestWeightsEpoch = epoch;
         bestInputNeurons = neuralNetwork.getClonedInputNeurons();
         bestHiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
         neuralNetwork.getClonedOutputNeuronList();
@@ -99,7 +102,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   }
 
   private void sendTrainingInfo(int numberOfEpochs, int epoch) {
-    if (epoch % (numberOfEpochs / 10) == 0) {
+    if (epoch % ((double) numberOfEpochs / UPDATE_FREQUENCY_PERCENT) == 0) {
       percentageOfCompletedEpochs = ((double) epoch / numberOfEpochs) * 100;
       sendNotifications();
     }
@@ -109,13 +112,12 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
       NeuralNetwork neuralNetwork, double[] input, double[] expectedOutput) {
     forwardPropagate(neuralNetwork, input);
 
-    double error = expectedOutput[0] - neuralNetwork.getOutput()[0];
-    backPropagate(neuralNetwork, error);
+    backPropagate(neuralNetwork, expectedOutput);
   }
 
   protected abstract void forwardPropagate(NeuralNetwork neuralNetwork, double[] input);
 
-  protected abstract void backPropagate(NeuralNetwork neuralNetwork, double error);
+  protected abstract void backPropagate(NeuralNetwork neuralNetwork, double[] error);
 
   @Override
   public void attach(IObserver observer) {
@@ -147,5 +149,10 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
   @Override
   public double getPercentageOfCompletedTraining() {
     return percentageOfCompletedEpochs;
+  }
+
+  @Override
+  public int getBestWeightsEpoch() {
+    return bestWeightsEpoch;
   }
 }

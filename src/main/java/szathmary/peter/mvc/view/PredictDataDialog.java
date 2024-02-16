@@ -8,7 +8,6 @@ import javax.swing.*;
 
 public class PredictDataDialog extends JDialog {
   private final IMainWindow mainWindow;
-  private final int numberOfInputs;
   private final List<JTextField> inputFields;
   private JPanel contentPane;
   private JButton buttonOK;
@@ -17,7 +16,6 @@ public class PredictDataDialog extends JDialog {
 
   public PredictDataDialog(IMainWindow mainWindow, int numberOfInputs) {
     this.mainWindow = mainWindow;
-    this.numberOfInputs = numberOfInputs;
     this.inputFields = new ArrayList<>(numberOfInputs);
 
     setContentPane(contentPane);
@@ -51,7 +49,7 @@ public class PredictDataDialog extends JDialog {
       inputFields.add(textField);
     }
 
-    setSize(400, 200);
+    setSize(400, 50 * numberOfInputs);
     setAutoRequestFocus(true);
     setTitle("Predict data");
     setLocationRelativeTo((Component) mainWindow);
@@ -59,10 +57,10 @@ public class PredictDataDialog extends JDialog {
   }
 
   private void onOK() {
-    double[] inputs =
-            new double[0];
+    double[] inputs = new double[0];
     try {
-      inputs = inputFields.stream().mapToDouble(field -> Double.parseDouble(field.getText())).toArray();
+      inputs =
+          inputFields.stream().mapToDouble(field -> Double.parseDouble(field.getText())).toArray();
     } catch (Exception e) {
       mainWindow.showErrorMessage(e.getLocalizedMessage());
       dispose();
@@ -79,7 +77,7 @@ public class PredictDataDialog extends JDialog {
 
   private void createUIComponents() {
     inputPanel = new JPanel();
-    inputPanel.setLayout(new GridLayout(0, 2)); // Set a layout
+    inputPanel.setLayout(new GridLayout(0, 2));
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
   }

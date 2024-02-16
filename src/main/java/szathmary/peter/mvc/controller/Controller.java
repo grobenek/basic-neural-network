@@ -1,9 +1,6 @@
 package szathmary.peter.mvc.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import szathmary.peter.mvc.model.IModel;
 import szathmary.peter.mvc.model.NetworkConfiguration;
 import szathmary.peter.mvc.observable.INeuralNetworkObservable;
@@ -21,6 +18,7 @@ public class Controller implements IController {
   private Optional<NetworkConfiguration> currentNeuralNetworkConfiguration = Optional.empty();
   private List<Double> trainingErrorList = Collections.emptyList();
   private List<Double> testingErrorList = Collections.emptyList();
+  private int bestWeightsEpoch;
   private double percentageOfCompletedTraining;
 
   public Controller(IModel model) {
@@ -53,13 +51,13 @@ public class Controller implements IController {
   @Override
   public void trainNetwork(
       IErrorFunction errorFunction, int numberOfEpochs, double minErrorTreshold) {
-    model.trainNetwork(errorFunction, numberOfEpochs, minErrorTreshold);
-  }
-
-  @Override
-  public void testNetwork(
-      IErrorFunction errorFunction, double[][] inputs, double[][] expectedOutputs) {
-    model.testNetwork(errorFunction, inputs, expectedOutputs);
+    try {
+      model.trainNetwork(errorFunction, numberOfEpochs, minErrorTreshold);
+    } catch (Exception e) {
+      System.err.println(e.getMessage());
+      System.err.println(Arrays.toString(e.getStackTrace()));
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -96,6 +94,7 @@ public class Controller implements IController {
     testingErrorList = networkObservable.getTestingErrors();
     percentageOfCompletedTraining = networkObservable.getPercentageOfCompletedTraining();
     currentNeuralNetworkConfiguration = networkObservable.getNeuralNetworkConfiguration();
+    bestWeightsEpoch = networkObservable.getBestWeightsEpoch();
 
     sendNotifications();
   }
@@ -135,5 +134,10 @@ public class Controller implements IController {
   @Override
   public double getPercentageOfCompletedTraining() {
     return percentageOfCompletedTraining;
+  }
+
+  @Override
+  public int getBestWeightsEpoch() {
+    return bestWeightsEpoch;
   }
 }

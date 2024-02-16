@@ -2,59 +2,14 @@ package szathmary.peter.mvc.model;
 
 import szathmary.peter.neuralnetwork.network.ActivationFunction;
 
-public final class NetworkConfiguration {
-  private final int numberOfInputNeurons;
-  private final ActivationFunction inputLayerActivationFunction;
-  private final int numberOfHiddenLayers;
-  private final int[] hiddenLayersNumberOfNeurons;
-  private final ActivationFunction[] hiddenLayersActivationFunctions;
-  private final int numberOfOutputNeurons;
-  private final ActivationFunction outputLayerActivationFunction;
-
-  public NetworkConfiguration(
-      int numberOfInputNeurons,
-      ActivationFunction inputLayerActivationFunction,
-      int numberOfHiddenLayers,
-      int[] hiddenLayersNumberOfNeurons,
-      ActivationFunction[] hiddenLayersActivationFunctions,
-      int numberOfOutputNeurons,
-      ActivationFunction outputLayerActivationFunction) {
-    this.numberOfInputNeurons = numberOfInputNeurons;
-    this.inputLayerActivationFunction = inputLayerActivationFunction;
-    this.numberOfHiddenLayers = numberOfHiddenLayers;
-    this.hiddenLayersNumberOfNeurons = hiddenLayersNumberOfNeurons;
-    this.hiddenLayersActivationFunctions = hiddenLayersActivationFunctions;
-    this.numberOfOutputNeurons = numberOfOutputNeurons;
-    this.outputLayerActivationFunction = outputLayerActivationFunction;
-  }
-
-  public int numberOfInputNeurons() {
-    return numberOfInputNeurons;
-  }
-
-  public ActivationFunction inputLayerActivationFunction() {
-    return inputLayerActivationFunction;
-  }
-
-  public int numberOfHiddenLayers() {
-    return numberOfHiddenLayers;
-  }
-
-  public int[] hiddenLayersNumberOfNeurons() {
-    return hiddenLayersNumberOfNeurons;
-  }
-
-  public ActivationFunction[] hiddenLayersActivationFunctions() {
-    return hiddenLayersActivationFunctions;
-  }
-
-  public int numberOfOutputNeurons() {
-    return numberOfOutputNeurons;
-  }
-
-  public ActivationFunction outputLayerActivationFunction() {
-    return outputLayerActivationFunction;
-  }
+public record NetworkConfiguration(
+    int numberOfInputNeurons,
+    ActivationFunction inputLayerActivationFunction,
+    int numberOfHiddenLayers,
+    int[] hiddenLayersNumberOfNeurons,
+    ActivationFunction[] hiddenLayersActivationFunctions,
+    int numberOfOutputNeurons,
+    ActivationFunction outputLayerActivationFunction) {
 
   @Override
   public String toString() {
