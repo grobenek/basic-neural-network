@@ -80,7 +80,7 @@ public abstract class TrainingAlgorithm implements ITraningAlgorithmObservable {
         bestWeightsEpoch = epoch;
         bestInputNeurons = neuralNetwork.getClonedInputNeurons();
         bestHiddenLayersNeurons = neuralNetwork.getClonedHiddenLayersNeurons();
-        neuralNetwork.getClonedOutputNeuronList();
+        bestOutputNeurons = neuralNetwork.getClonedOutputNeuronList();
       }
 
       trainingErrorList.add(calculatedTrainingError);

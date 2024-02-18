@@ -150,7 +150,7 @@ public class MainWindow extends JFrame implements IMainWindow {
     for (int i = 0; i < trainingErrors.size(); i++) {
       sb.append("Epoch ")
           .append(i + 1)
-          .append(" : testing  ")
+          .append(" : training  ")
           .append(errorFunction.getClass().getSimpleName())
           .append(" error = ")
           .append(trainingErrors.get(i))
